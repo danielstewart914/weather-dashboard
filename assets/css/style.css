@@ -1,0 +1,13 @@
+.compass {
+    display: inline-block;
+    margin: 0.2rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 0.15rem solid #000;
+    background: #444;
+    line-height: 1.4rem;
+    text-align: center;
+    font-size: 2rem;
+    color: red;
+}
