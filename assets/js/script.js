@@ -2,6 +2,29 @@ var openWeatherApiRootUrl = 'http://api.openweathermap.org';
 var openWeatherApiKey = '1008cf8d4beec486e3a918845ef87da6';
 var units = 'imperial';
 
+function displayCurrentWeather ( cityName, currentWeatherData ) {
+
+    console.log( cityName );
+    console.log( currentWeatherData );
+
+}
+
+function display5DayForecast ( weatherForecast ) {
+
+    for ( var i = 0; i < weatherForecast.length; i++ ) {
+
+        console.log( weatherForecast[i] );
+
+    }
+
+}
+
+function displayWeather ( cityName, weatherData ) {
+
+    displayCurrentWeather( cityName, weatherData.current );
+    display5DayForecast( weatherData.daily );
+
+}
 
 function getLatLong ( searchTerm ) {
 
@@ -50,10 +73,6 @@ function getWeather ( location ) {
     var cityName = location.name;
     var weatherUrl = `${ openWeatherApiRootUrl }/data/2.5/onecall?lat=${ lat }&lon=${ lon }&units=${ units }&exclude=minutely,hourly&appid=${ openWeatherApiKey }`;
 
-    console.log( lat );
-    console.log( lon );
-    console.log( cityName );
-
     fetch ( weatherUrl )
 
         .then ( function ( response ) {
@@ -70,10 +89,10 @@ function getWeather ( location ) {
             }
 
         } )
-        .then ( function ( data ) {
+        .then ( function ( weatherData ) {
 
-            console.log( data );
-
+            displayWeather(  cityName, weatherData );
+        
         } )
         .catch ( function ( error ) {
 
@@ -83,4 +102,4 @@ function getWeather ( location ) {
 
 }
 
-getLatLong( 'Seattle' );
+getLatLong( 'Everett' );
