@@ -1,6 +1,6 @@
 :root {
 
-    --unit: 5px;
+    --unit: 0.3rem;
 }
 
 /* compass classes */
@@ -158,6 +158,49 @@
   }
 
   /* end UV coloring */
+
+
+  /* slider switch */
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 4em;
+    height: 2em;
+  }
+  
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: .2s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 1.5em;
+    width: 1.5em;
+    left: 0.25em;
+    bottom: 0.25em;
+    background-color: white;
+    transition: .2s;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(2em);
+  }
+
+  /* end slider switch */
 
   /* other formatting */
   .small {

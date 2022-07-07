@@ -47,6 +47,12 @@ function toggleUnits ( ) {
     }
 
     toggleUnitsEl.html( units.tempChar );
+    
+    if( cityInputEl.val() ) {
+
+        getLatLong( cityInputEl.val() );
+
+    }
 
 }
 
@@ -427,4 +433,4 @@ citySearchFormEl.submit( function ( event ) {
 } );
 
 
-toggleUnitsEl.on( 'click', toggleUnits );
+toggleUnitsEl.change( toggleUnits );
