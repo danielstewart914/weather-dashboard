@@ -50,6 +50,7 @@ function toggleUnits ( ) {
 
 }
 
+// returns class to color code UV index
 function colorUVI ( uvi ) {
 
     if ( uvi <= 2 ) return 'UVlow';
@@ -108,6 +109,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
     var cityNameEl = $( '<h2>' );
+    var dataFetchDateTimeEl = $( '<p>' ).addClass( 'small' );
     var weatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
     var weatherIconEl = $( '<img>' );
     var weatherDescEl = $( '<p>' );
@@ -122,18 +124,20 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
     var sunsetEl = $( '<p>' );
     var cloudCoverEl = $( '<p>' );
 
+    var fetchDateTime = luxon.DateTime.fromSeconds( currentWeatherData.dt, { zone: timezone } ).toLocaleString( luxon.DateTime.DATETIME_SHORT );
 
     cityNameEl.text( cityName );
     weatherIconEl.attr( 'src', weatherIconUrl );
-    weatherDescEl.append( currentWeatherData.weather[0].main, ' - ', weatherIconEl );
+    weatherDescEl.append( currentWeatherData.weather[0].main, ' ', weatherIconEl );
     tempEl.append( thermometerIcon,  ' Temp: ', currentWeatherData.temp, ' ', units.tempChar );
     compassEl = generateCompass( currentWeatherData.wind_deg );
     windEl.append( windIcon, ' ', currentWeatherData.wind_speed, ' ', units.speed, ' ', degToCardinal( currentWeatherData.wind_deg ), compassEl );
     humidityEl.append( moistureIcon, ' Humidity: ', currentWeatherData.humidity, '%' );
     dewPointEl.append( dropletIcon, ' Dew Point: ', currentWeatherData.dew_point, ' ', units.tempChar );
-    uviColorEl.text = currentWeatherData.uvi;
-    uviColorEl.addClass( [ colorUVI( currentWeatherData.uvi ), 'UVtag' ] );
+    uviColorEl.text( currentWeatherData.uvi );
+    uviColorEl.addClass( [ colorUVI( currentWeatherData.uvi ), 'UVtag', 'px-2 py-1' ] );
     uviEl.append( sunIcon, ' UV Index: ', uviColorEl );
+    dataFetchDateTimeEl.text( 'as of ' + fetchDateTime + ' local time' );
 
     var sunrise = luxon.DateTime.fromSeconds( currentWeatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
     var sunset = luxon.DateTime.fromSeconds( currentWeatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
@@ -143,7 +147,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
 
     cloudCoverEl.append( cloudSunIcon, ' Cloud Cover: ', currentWeatherData.clouds, '%' );
 
-    currentWeatherFrag.append( cityNameEl, weatherDescEl, tempEl, windEl, humidityEl, dewPointEl, uviEl, sunriseEl, sunsetEl, cloudCoverEl );
+    currentWeatherFrag.append( cityNameEl, weatherDescEl, tempEl, windEl, humidityEl, dewPointEl, uviEl, sunriseEl, sunsetEl, cloudCoverEl, dataFetchDateTimeEl );
 
     currentWeatherDisplayEl.html( currentWeatherFrag );
 

@@ -3,6 +3,7 @@
     --unit: 5px;
 }
 
+/* compass */
 .compass {
     margin: 1em;
     position: relative;
@@ -120,4 +121,44 @@
     right: calc( var( --unit ) * -1 );
     transform-origin: bottom;
     transform: rotate(180deg);
+  }
+
+  /* end compass */
+
+  /* UV coloring */
+
+  .UVtag {
+    border-radius: 0.3em;
+    border: 0.1em solid;
+  }
+
+  .UVlow {
+    border-color: #00a300;
+    background: #00ff00;
+  }
+
+  .UVmoderate {
+    border-color: #ffff00;
+    background: #ffff99;
+  }
+
+  .UVhigh {
+    border-color: #ff8c00;
+    background: #ffa333;
+  }
+
+  .UVveryHigh {
+    border-color: #ff0000;
+    background: #ff3333;
+  }
+
+  .UVextreme {
+    border-color: #a300a3;
+    background: #e000e0;
+  }
+
+  /* end UV coloring */
+
+  .small {
+    font-size: 0.6em;
   }
