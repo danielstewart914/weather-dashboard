@@ -138,22 +138,22 @@
   }
 
   .UVmoderate {
-    border-color: #ffff00;
-    background: #ffff99;
+    border-color: #ffdb00;
+    background: #ffff00;
   }
 
   .UVhigh {
-    border-color: #ff8c00;
+    border-color: #ed8200;
     background: #ffa333;
   }
 
   .UVveryHigh {
-    border-color: #ff0000;
-    background: #ff3333;
+    border-color: #dd0000;
+    background: #ff5555;
   }
 
   .UVextreme {
-    border-color: #a300a3;
+    border-color: #800080;
     background: #e000e0;
   }
 
