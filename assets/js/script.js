@@ -60,6 +60,70 @@ function colorUVI ( uvi ) {
     return 'UVextreme';
 }
 
+function getUVIlevel ( uvi ) {
+
+    if ( uvi <= 2 ) return 'Low';
+    if ( uvi <= 5 ) return 'Moderate';
+    if ( uvi <= 7 ) return 'High';
+    if ( uvi <= 10 ) return 'Very High';
+    return 'Extreme';
+}
+
+function getUVImessageCard ( uvi ) {
+
+    var listEL = $( '<ul>' );
+    var listItem1 = $( '<li>' );
+    var listItem2 = $( '<li>' );
+    var listItem3 = $( '<li>' );
+
+    if ( uvi <= 2 ) {
+
+        listItem1.text( 'Wear sunglasses on bright days. In winter, reflection off snow can nearly double UV strength.' );
+        listItem2.text( 'If you burn easily, cover up and use sunscreen' );
+        listEL.append( listItem1, listItem2 );
+
+        return listEL;
+
+    }
+    if ( uvi <= 5 ) {
+
+        listItem1.text( 'Take precautions, such as covering up and using sunscreen, if you will be outside.' );
+        listItem2.text( 'Stay in shade near midday when the sun is strongest.' );
+        listEL.append( listItem1, listItem2 );
+
+        return listEL;
+    }
+    if ( uvi <= 7 ) {
+        
+        listItem1.text( 'Protection against sunburn is needed.' );
+        listItem2.text( 'Reduce time in the sun between 11am and 4pm.' );
+        listItem3.text( 'Cover up, wear a hat and sunglasses, use sunscreen.' );
+        listEL.append( listItem1, listItem2, listItem3 );
+
+        return listEL;
+
+    }
+    if ( uvi <= 10 ) {
+        
+        listItem1.text( 'Take extra precautions. Unprotected skin will be damaged and can burn quickly.' );
+        listItem2.text( 'Try to avoid the sun between 11am and 4pm.' );
+        listEL.append( listItem1, listItem2 );
+
+        return listEL;
+
+    }
+    if ( uvi > 10 ) {
+
+        listItem1.text( 'Take all precautions. Unprotected skin can burn in minutes. Beachgoers should know that white sand and other bright surfaces reflect UV and will increase UV exposure.' );
+        listItem2.text( 'Avoid the sun between 11am and 4pm.' );
+        listItem3.text( 'Seek shade, cover up, wear a het and sunglasses, and use sunscreen.' );
+        listEL.append( listItem1, listItem2, listItem3 );
+
+        return listEL;
+
+    }
+}
+
 // takes direction in degrees and returns the corresponding cardinal direction
 function degToCardinal ( degrees ) {
 
@@ -106,51 +170,148 @@ function generateCompass ( direction ) {
 // displays current weather on the screen
 function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
 
+    // document fragment for current weather
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
-    var cityNameEl = $( '<h2>' );
-    var dataFetchDateTimeEl = $( '<p>' ).addClass( 'small' );
-    var weatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
-    var weatherIconEl = $( '<img>' );
-    var weatherDescEl = $( '<p>' );
-    var tempEl = $( '<p>' );
-    var windEl = $( '<p>' );
-    var humidityEl = $( '<p>' );
-    var dewPointEl = $( '<p>' );
-    var uviEl = $( '<p>' );
-    var uviColorEl = $( '<span>' );
-    var compassEl = $( '<div>' );
-    var sunriseEl = $( '<p>' );
-    var sunsetEl = $( '<p>' );
-    var cloudCoverEl = $( '<p>' );
+    // city header
+    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
+    var largeWeatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
+    var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
 
-    var fetchDateTime = luxon.DateTime.fromSeconds( currentWeatherData.dt, { zone: timezone } ).toLocaleString( luxon.DateTime.DATETIME_SHORT );
+    cityNameEl.append( cityName, largeWeatherIconEl );
 
-    cityNameEl.text( cityName );
-    weatherIconEl.attr( 'src', weatherIconUrl );
-    weatherDescEl.append( currentWeatherData.weather[0].main, ' ', weatherIconEl );
-    tempEl.append( thermometerIcon,  ' Temp: ', currentWeatherData.temp, ' ', units.tempChar );
-    compassEl = generateCompass( currentWeatherData.wind_deg );
-    windEl.append( windIcon, ' ', currentWeatherData.wind_speed, ' ', units.speed, ' ', degToCardinal( currentWeatherData.wind_deg ), compassEl );
-    humidityEl.append( moistureIcon, ' Humidity: ', currentWeatherData.humidity, '%' );
-    dewPointEl.append( dropletIcon, ' Dew Point: ', currentWeatherData.dew_point, ' ', units.tempChar );
-    uviColorEl.text( currentWeatherData.uvi );
-    uviColorEl.addClass( [ colorUVI( currentWeatherData.uvi ), 'UVtag', 'px-2 py-1' ] );
-    uviEl.append( sunIcon, ' UV Index: ', uviColorEl );
-    dataFetchDateTimeEl.text( 'as of ' + fetchDateTime + ' local time' );
+    // Current conditions banner
+    var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center' );
+    var currentConditionsBannerEl = $( '<h2>' ).addClass( 'header bg-navy text-light p-3' );
+    var updatedEl = $( '<footer>' ).addClass( 'small' );
+    var fetchDateTime = luxon.DateTime.fromSeconds( currentWeatherData.dt, { zone: timezone } );
 
+    // Add date of weather fetch to banner
+    currentConditionsBannerEl.append( 'Current Conditions - ', fetchDateTime.toLocaleString( luxon.DateTime.DATE_FULL ) );
+
+    // Add time of weather fetch to banner footer
+    updatedEl.append( 'As of ', fetchDateTime.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
+
+    // append elements to banner
+    bannerRowEl.append( currentConditionsBannerEl, updatedEl );
+
+    // conditions card
+    var conditionsRowEl = $( '<div>' ).addClass( 'row m-3' );
+    var conditionsColEl = $( '<div>' ).addClass( 'col-md-6' );
+    var conditionsCardEl = $( '<div>' ).addClass( 'card my-2 h-100' );
+
+    // sunrise / sunset times converted to human readable format
     var sunrise = luxon.DateTime.fromSeconds( currentWeatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
     var sunset = luxon.DateTime.fromSeconds( currentWeatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
 
-    sunriseEl.append( sunriseIcon, ' Sunrise: ', sunrise );
-    sunsetEl.append( sunsetIcon, ' Sunset: ', sunset );
+    // conditions card to display information
+    conditionsCardEl.html( `
+        <h4 class="card-header bg-dark text-light text-center">${ currentWeatherData.weather[0].main } <img src="http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }.png" alt="${ currentWeatherData.weather[0].main } Icon"></h4>
+        <div class="row justify-content-center">
+            <div class="col-sm-5">
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-thermometer-half"></i> Temperature</h6>
+                    <span class="fw-bold p-1">${ currentWeatherData.temp } ${ units.tempChar }</span>
+                </div>
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-droplet"></i> Dew Point</h6>
+                    <span class="fw-bold p-1">${ currentWeatherData.dew_point } ${ units.tempChar }</span>
+                </div>
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-sunrise"></i> Sunrise</h6>
+                    <span class="fw-bold p-1">${ sunrise }</span>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-moisture"></i> Humidity</h6>
+                    <span class="fw-bold p-1">${ currentConditionsBannerEl.humidity }%</span>
+                </div>
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-cloud-sun"></i> Cloud Cover</h6>
+                    <span class="fw-bold p-1">${ currentWeatherData.clouds }%</span>
+                </div>
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-sunset"></i> Sunset</h6>
+                    <span class="fw-bold p-1">${ sunset }</span>
+                </div>
+            </div>
+        </div>
+    ` );
 
-    cloudCoverEl.append( cloudSunIcon, ' Cloud Cover: ', currentWeatherData.clouds, '%' );
+    // Append card to column and column to row
+    conditionsColEl.append( conditionsCardEl );
+    conditionsRowEl.append( conditionsColEl );
 
-    currentWeatherFrag.append( cityNameEl, weatherDescEl, tempEl, windEl, humidityEl, dewPointEl, uviEl, sunriseEl, sunsetEl, cloudCoverEl, dataFetchDateTimeEl );
 
-    currentWeatherDisplayEl.html( currentWeatherFrag );
+    var windColEl =  $( '<div>' ).addClass( 'col-md-6' );
+    var windCardEl = $( '<div>' ).addClass( 'card my-2 text-center h-100' );
+    var windGusts;
 
+    if( currentWeatherData.wind_gust ) {
+
+        windGusts = currentWeatherData.wind_gust + ' ' + units.speed;
+
+    } else {
+
+        windGusts = 'N/A'
+
+    }
+
+    windCardEl.html( `
+        <h5 class="card-header bg-dark text-light">
+            <i class="bi bi-wind"></i> Wind
+        </h5>
+        <div class="row justify-content-center">
+            <div class="col-sm-5 d-flex flex-column">
+                <div class="card my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light">Speed</h6>
+                    <span class="fw-bold p-1">${ currentWeatherData.wind_speed } ${ units.speed }</span> 
+                </div>
+                <div class="card my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light">Gusts</h6>
+                    <span class=" fw-bold p-1">${ windGusts }</span> 
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="card my-2 mx-3 mx-sm-0 text-center h-100">
+                    <h6 class="card-header bg-navy text-light">Direction</h6>
+                    <span class="fw-bold">${ degToCardinal( currentWeatherData.wind_deg ) }</span> 
+                    <div class="compass mx-auto">
+                        <div class="ring"></div>
+                        <div class="north direction"></div>
+                        <div class="east direction"></div>
+                        <div class="south direction"></div>
+                        <div class="west direction"></div>
+                        <div class="pointer" style="transform: rotate(${ currentWeatherData.wind_deg }deg);">
+                            <div class="pointer-bottom"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    ` );
+
+    windColEl.append( windCardEl );
+    conditionsRowEl.append( windColEl );
+
+    var UVIrowEl = $( '<div>' ).addClass( 'row m-3 justify-content-center' );
+    var UVIcolEl = $( '<div>' ).addClass( 'col-12' );
+    var UVICard = $( '<div>' ).addClass( 'card my-2' );
+
+    UVICard.html( `
+    <div class="card-header text-center fw-bold UVtag ${ colorUVI( currentWeatherData.uvi ) }">
+    <i class="bi bi-sun"></i> UV Index: ${ currentWeatherData.uvi } - ${ getUVIlevel( currentWeatherData.uvi ) }
+    </div>
+    ` );
+
+    UVICard.append( getUVImessageCard( currentWeatherData.uvi ) )
+
+    UVIcolEl.append( UVICard );
+    UVIrowEl.append( UVIcolEl );
+
+    currentWeatherFrag.append( cityNameEl, bannerRowEl, conditionsRowEl, UVIrowEl );
+    currentWeatherDisplayEl.html( currentWeatherFrag )
     console.log( cityName );
     console.log( currentWeatherData );
 

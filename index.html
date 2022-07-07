@@ -10,16 +10,21 @@
     <title>Weather Dashboard</title>
 </head>
 <body>
-    <header class="d-flex justify-content-between">
-        <h1>Weather Dashboard</h1>
-        <button id="toggleUnits" class="">&#8457;</button>
+    <header class="">
+        <h1 class="text-center">Weather Dashboard</h1>
     </header>
-    <main id="main" class="fs-5">
-        <form id="citySearch">
-            <input type="text" name="search" id="cityInput">
-            <input type="submit" value="Search">
-        </form>
-        <section id="currentWeatherDisplay" class="container"></section>
+    <main id="main" class="container-fluid">
+        <div class="row justify-content-center">
+            <aside class="card col-xl-3 p-0 m-3">
+                <h2 class="card-header text-center bg-dark text-light">Search for City</h2>
+                <form id="citySearch" class="m-3">
+                    <input type="text" name="search" id="cityInput">
+                    <input type="submit" value="Search">
+                </form>
+                <button id="toggleUnits" class="btn btn-primary m-3">&#8457;</button>
+            </aside>
+            <section id="currentWeatherDisplay" class="card col-xl-8 p-0 m-3"></section>
+        </div>
     </main>
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

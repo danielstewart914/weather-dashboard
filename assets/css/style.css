@@ -3,7 +3,7 @@
     --unit: 5px;
 }
 
-/* compass */
+/* compass classes */
 .compass {
     margin: 1em;
     position: relative;
@@ -159,6 +159,11 @@
 
   /* end UV coloring */
 
+  /* other formatting */
   .small {
-    font-size: 0.6em;
+    font-size: 0.8em;
+  }
+
+  .bg-navy {
+    background-color: #27285C;
   }
