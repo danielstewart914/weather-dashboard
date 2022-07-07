@@ -13,12 +13,13 @@ const metric = {
     tempChar: '&#8451;'
  };
 
- const imperial = { 
+const imperial = { 
     query: 'imperial',
     speed: 'mph',
     tempChar: '&#8457;'
  };
 
+// Icons for display
  const dropletIcon = $( '<i>' ).addClass( 'bi bi-droplet' );
  const thermometerIcon = $( '<i>' ).addClass( 'bi bi-thermometer-half' );
  const windIcon = $( '<i>' ).addClass( 'bi bi-wind' );
@@ -26,6 +27,7 @@ const metric = {
  const sunriseIcon = $( '<i>' ).addClass( 'bi bi-sunrise' );
  const sunsetIcon = $( '<i>' ).addClass( 'bi bi-sunset' );
  const cloudSunIcon = $( '<i>' ).addClass( 'bi bi-cloud-sun' );
+ const moistureIcon = $( '<i>' ).addClass( 'bi bi-moisture' );
 
 // set units to imperial by default
  var units = imperial;
@@ -46,6 +48,15 @@ function toggleUnits ( ) {
 
     toggleUnitsEl.html( units.tempChar );
 
+}
+
+function colorUVI ( uvi ) {
+
+    if ( uvi <= 2 ) return 'UVlow';
+    if ( uvi <= 5 ) return 'UVmoderate';
+    if ( uvi <= 7 ) return 'UVhigh';
+    if ( uvi <= 10 ) return 'UVveryHigh';
+    return 'UVextreme';
 }
 
 // takes direction in degrees and returns the corresponding cardinal direction
@@ -103,7 +114,9 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
     var tempEl = $( '<p>' );
     var windEl = $( '<p>' );
     var humidityEl = $( '<p>' );
+    var dewPointEl = $( '<p>' );
     var uviEl = $( '<p>' );
+    var uviColorEl = $( '<span>' );
     var compassEl = $( '<div>' );
     var sunriseEl = $( '<p>' );
     var sunsetEl = $( '<p>' );
@@ -116,8 +129,11 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
     tempEl.append( thermometerIcon,  ' Temp: ', currentWeatherData.temp, ' ', units.tempChar );
     compassEl = generateCompass( currentWeatherData.wind_deg );
     windEl.append( windIcon, ' ', currentWeatherData.wind_speed, ' ', units.speed, ' ', degToCardinal( currentWeatherData.wind_deg ), compassEl );
-    humidityEl.append( dropletIcon, ' Humidity: ', currentWeatherData.humidity, '%' );
-    uviEl.append( sunIcon, ' UV Index: ', currentWeatherData.uvi );
+    humidityEl.append( moistureIcon, ' Humidity: ', currentWeatherData.humidity, '%' );
+    dewPointEl.append( dropletIcon, ' Dew Point: ', currentWeatherData.dew_point, ' ', units.tempChar );
+    uviColorEl.text = currentWeatherData.uvi;
+    uviColorEl.addClass( [ colorUVI( currentWeatherData.uvi ), 'UVtag' ] );
+    uviEl.append( sunIcon, ' UV Index: ', uviColorEl );
 
     var sunrise = luxon.DateTime.fromSeconds( currentWeatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
     var sunset = luxon.DateTime.fromSeconds( currentWeatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
@@ -127,7 +143,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
 
     cloudCoverEl.append( cloudSunIcon, ' Cloud Cover: ', currentWeatherData.clouds, '%' );
 
-    currentWeatherFrag.append( cityNameEl, weatherDescEl, tempEl, windEl, humidityEl, uviEl, sunriseEl, sunsetEl, cloudCoverEl );
+    currentWeatherFrag.append( cityNameEl, weatherDescEl, tempEl, windEl, humidityEl, dewPointEl, uviEl, sunriseEl, sunsetEl, cloudCoverEl );
 
     currentWeatherDisplayEl.html( currentWeatherFrag );
 
@@ -237,7 +253,11 @@ function getWeather ( location ) {
 citySearchFormEl.submit( function ( event ) {
 
     event.preventDefault();
-    getLatLong( cityInputEl.val() ); 
+    if( cityInputEl.val() ) {
+
+        getLatLong( cityInputEl.val() ); 
+
+    }
     
 } );
 
