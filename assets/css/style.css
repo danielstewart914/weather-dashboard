@@ -1,13 +1,123 @@
-.compass {
-    display: inline-block;
-    margin: 0.2rem;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: 0.15rem solid #000;
-    background: #444;
-    line-height: 1.4rem;
-    text-align: center;
-    font-size: 2rem;
-    color: red;
+:root {
+
+    --unit: 5px;
 }
+
+.compass {
+    margin: 1em;
+    position: relative;
+    width: calc( var( --unit ) * 20 );
+    height: calc( var( --unit ) * 20 );
+    background: #222;
+    border-radius: 50%;
+  }
+  
+  .ring {
+    position: absolute;
+    width: calc( var( --unit ) * 20.5 );
+    height: calc( var( --unit ) * 20.5 );
+    border-radius: 50%;
+    border: calc( var( --unit ) * 0.5 ) solid black;
+    z-index: 1;
+    top: calc( calc( var( --unit ) * 0.25 ) * -1);
+    left: calc( calc( var( --unit ) * 0.25 ) * -1);
+  }
+  
+  .direction {
+    color: white;
+    width: 0;
+    height: 0;
+    position: absolute;
+    text-align: center;
+    line-height: calc( var( --unit ) * 2 );
+    font-size: var( --unit );
+    border: var( --unit ) solid transparent;
+  }
+  
+  .north {
+    left: calc( 50% - var( --unit ) );
+    border-top: calc( var( --unit ) * 2 ) solid #888;
+  }
+  
+  .north:after {
+    content: "N";
+    font-size: calc( var( --unit ) * 1.5 );
+    position: absolute;
+    text-align: center;
+    width: var( --unit );
+    left: calc( calc( var( --unit ) / 2 ) * -1 );
+  }
+  
+  .east {
+    top: calc( 50% - var( --unit ) );
+    right: 0;
+    border-right: calc( var( --unit ) * 2 ) solid #888;
+  }
+  
+  .east:after {
+    content: "E";
+    font-size: calc( var( --unit ) * 1.5 );
+    position: absolute;
+    text-align: center;
+    width: var( --unit );
+    top: calc( var( --unit ) * -1 );
+    right: calc( var( --unit ) / 2 );
+  }
+  
+  .south {
+    left: calc( 50% - var( --unit ) );
+    bottom: 0;
+    border-bottom: calc( var( --unit ) * 2 ) solid #888;
+  }
+  
+  .south:after {
+    content: "S";
+    font-size: calc( var( --unit ) * 1.5 );
+    position: absolute;
+    text-align: center;
+    width: var( --unit );
+    left: calc( calc( var( --unit ) / 2 ) * -1 );
+    top: calc( calc( var( --unit ) * 2 ) * -1 );
+    
+  }
+  
+  .west {
+    top: calc( 50% - var( --unit ) );
+    left: 0;
+    border-left: calc( var( --unit ) * 2 ) solid #888;
+  }
+  
+  .west:after {
+    content: "W";
+    font-size: calc( var( --unit ) * 1.5 );
+    position: absolute;
+    text-align: center;
+    width: var( --unit );
+    top: calc( var( --unit ) * -1 );
+    left: calc( var( --unit ) / 2 );
+  }
+  
+  .pointer {
+    width: 0;
+    height: 0;
+    position: absolute;
+    text-align: center;
+    line-height: var( --unit );
+    font-size: var( --unit );
+    border: var( --unit ) solid transparent;
+    border-bottom: calc( var( --unit ) * 8 ) solid red;
+    top: calc( var( --unit ) * 1 );
+    left: calc( 50% - var( --unit ) );
+    transform-origin: bottom;
+  }
+  
+  .pointer-bottom {
+    position: absolute;
+    width: calc( var( --unit ) * 2 );
+    height: calc( var( --unit ) * 5 );
+    background: #999;
+    bottom: calc( calc( var( --unit ) * 8 ) * -1 );
+    right: calc( var( --unit ) * -1 );
+    transform-origin: bottom;
+    transform: rotate(180deg);
+  }

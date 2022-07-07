@@ -19,8 +19,19 @@ const metric = {
     tempChar: '&#8457;'
  };
 
+ const dropletIcon = $( '<i>' ).addClass( 'bi bi-droplet' );
+ const thermometerIcon = $( '<i>' ).addClass( 'bi bi-thermometer-half' );
+ const windIcon = $( '<i>' ).addClass( 'bi bi-wind' );
+ const sunIcon = $( '<i>' ).addClass( 'bi bi-sun' );
+ const sunriseIcon = $( '<i>' ).addClass( 'bi bi-sunrise' );
+ const sunsetIcon = $( '<i>' ).addClass( 'bi bi-sunset' );
+ const cloudSunIcon = $( '<i>' ).addClass( 'bi bi-cloud-sun' );
+
+// set units to imperial by default
  var units = imperial;
 
+
+// toggle between imperial and metric units
 function toggleUnits ( ) {
 
     if ( units.query === 'imperial' ) {
@@ -37,6 +48,7 @@ function toggleUnits ( ) {
 
 }
 
+// takes direction in degrees and returns the corresponding cardinal direction
 function degToCardinal ( degrees ) {
 
     if ( degrees < 22.5 ) return 'N';
@@ -50,39 +62,72 @@ function degToCardinal ( degrees ) {
     return 'N';
 }
 
-function displayCurrentWeather ( cityName, currentWeatherData ) {
+// generates a compass to display wind direction
+function generateCompass ( direction ) {
+
+    var compassEl = $( '<div>' );
+    var ringEl = $( '<div>' );
+    var northEl = $( '<div>' );
+    var eastEl = $( '<div>' );
+    var southEl = $( '<div>' );
+    var westEl = $( '<div>' );
+    var pointerEl = $( '<div>' );
+    var pointerBottomEl = $( '<div>' );
+
+    compassEl.addClass( 'compass' );
+    ringEl.addClass( 'ring' );
+    northEl.addClass( 'north direction' );
+    eastEl.addClass( 'east direction' );
+    southEl.addClass( 'south direction' );
+    westEl.addClass( 'west direction' );
+    pointerEl.addClass( 'pointer' );
+    pointerBottomEl.addClass( 'pointer-bottom' );
+
+    pointerEl.append( pointerBottomEl );
+    compassEl.append( ringEl, northEl, eastEl, southEl, westEl, pointerEl );
+    
+    pointerEl.css( 'transform', 'rotate( ' + direction + 'deg )' );
+
+    return compassEl;
+}
+
+// displays current weather on the screen
+function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
 
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
     var cityNameEl = $( '<h2>' );
+    var weatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
+    var weatherIconEl = $( '<img>' );
     var weatherDescEl = $( '<p>' );
     var tempEl = $( '<p>' );
-    var windSpeedEl = $( '<p>' );
+    var windEl = $( '<p>' );
     var humidityEl = $( '<p>' );
     var uviEl = $( '<p>' );
     var compassEl = $( '<div>' );
+    var sunriseEl = $( '<p>' );
+    var sunsetEl = $( '<p>' );
+    var cloudCoverEl = $( '<p>' );
 
 
     cityNameEl.text( cityName );
-    weatherDescEl.text( currentWeatherData.weather[0].main );
-    tempEl.html( 'Temp: ' + currentWeatherData.temp + ' ' + units.tempChar);
+    weatherIconEl.attr( 'src', weatherIconUrl );
+    weatherDescEl.append( currentWeatherData.weather[0].main, ' - ', weatherIconEl );
+    tempEl.append( thermometerIcon,  ' Temp: ', currentWeatherData.temp, ' ', units.tempChar );
+    compassEl = generateCompass( currentWeatherData.wind_deg );
+    windEl.append( windIcon, ' ', currentWeatherData.wind_speed, ' ', units.speed, ' ', degToCardinal( currentWeatherData.wind_deg ), compassEl );
+    humidityEl.append( dropletIcon, ' Humidity: ', currentWeatherData.humidity, '%' );
+    uviEl.append( sunIcon, ' UV Index: ', currentWeatherData.uvi );
 
-    compassEl.addClass( 'compass' );
-    compassEl.html( '&#8593;' );
-    compassEl.css( 'transform', 'rotate( ' + currentWeatherData.wind_deg + 'deg )' );
+    var sunrise = luxon.DateTime.fromSeconds( currentWeatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
+    var sunset = luxon.DateTime.fromSeconds( currentWeatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
 
-    windSpeedEl.append( `Wind: ${ currentWeatherData.wind_speed } ${ units.speed }`);
-    windSpeedEl.append( compassEl );
-    windSpeedEl.append( degToCardinal( currentWeatherData.wind_deg ) );
-    humidityEl.text( 'Humidity: ' + currentWeatherData.humidity + '%' );
-    uviEl.text( 'UV: ' + currentWeatherData.uvi );
+    sunriseEl.append( sunriseIcon, ' Sunrise: ', sunrise );
+    sunsetEl.append( sunsetIcon, ' Sunset: ', sunset );
 
-    currentWeatherFrag.append( cityNameEl );
-    currentWeatherFrag.append( weatherDescEl );
-    currentWeatherFrag.append( tempEl );
-    currentWeatherFrag.append( windSpeedEl );
-    currentWeatherFrag.append( humidityEl );
-    currentWeatherFrag.append( uviEl );
+    cloudCoverEl.append( cloudSunIcon, ' Cloud Cover: ', currentWeatherData.clouds, '%' );
+
+    currentWeatherFrag.append( cityNameEl, weatherDescEl, tempEl, windEl, humidityEl, uviEl, sunriseEl, sunsetEl, cloudCoverEl );
 
     currentWeatherDisplayEl.html( currentWeatherFrag );
 
@@ -91,6 +136,7 @@ function displayCurrentWeather ( cityName, currentWeatherData ) {
 
 }
 
+// displays 5 day forecast
 function display5DayForecast ( weatherForecast ) {
 
     for ( var i = 0; i < weatherForecast.length; i++ ) {
@@ -101,13 +147,15 @@ function display5DayForecast ( weatherForecast ) {
 
 }
 
+// displays weather on the screen
 function displayWeather ( cityName, weatherData ) {
 
-    displayCurrentWeather( cityName, weatherData.current );
+    displayCurrentWeather( cityName, weatherData.current, weatherData.timezone );
     display5DayForecast( weatherData.daily );
 
 }
 
+// fetches the latitude and longitude for a given search query
 function getLatLong ( searchTerm ) {
 
     var locationUrl = `${ openWeatherApiRootUrl }/geo/1.0/direct?q=${ searchTerm }&appid=${ openWeatherApiKey }`;
@@ -148,6 +196,7 @@ function getLatLong ( searchTerm ) {
 
 }
 
+// fetches weather data for a given location
 function getWeather ( location ) {
 
     var lat = location.lat;
@@ -184,6 +233,7 @@ function getWeather ( location ) {
 
 }
 
+// test form
 citySearchFormEl.submit( function ( event ) {
 
     event.preventDefault();
