@@ -47,7 +47,7 @@ function toggleUnits ( ) {
     }
 
     toggleUnitsEl.html( units.tempChar );
-    
+
     if( cityInputEl.val() ) {
 
         getLatLong( cityInputEl.val() );
@@ -122,7 +122,7 @@ function getUVImessageCard ( uvi ) {
 
         listItem1.text( 'Take all precautions. Unprotected skin can burn in minutes. Beachgoers should know that white sand and other bright surfaces reflect UV and will increase UV exposure.' );
         listItem2.text( 'Avoid the sun between 11am and 4pm.' );
-        listItem3.text( 'Seek shade, cover up, wear a het and sunglasses, and use sunscreen.' );
+        listItem3.text( 'Seek shade, cover up, wear a hat and sunglasses, and use sunscreen.' );
         listEL.append( listItem1, listItem2, listItem3 );
 
         return listEL;
