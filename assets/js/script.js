@@ -225,7 +225,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
             <div class="col-sm-5">
                 <div class="card text-center my-2 mx-3 mx-sm-0">
                     <h6 class="card-header bg-navy text-light"><i class="bi bi-moisture"></i> Humidity</h6>
-                    <span class="fw-bold p-1">${ currentConditionsBannerEl.humidity }%</span>
+                    <span class="fw-bold p-1">${ currentWeatherData.humidity }%</span>
                 </div>
                 <div class="card text-center my-2 mx-3 mx-sm-0">
                     <h6 class="card-header bg-navy text-light"><i class="bi bi-cloud-sun"></i> Cloud Cover</h6>
