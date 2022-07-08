@@ -214,3 +214,9 @@
   .bg-navy {
     background-color: #202a44;
   }
+
+  @media screen and ( max-width: 768px )   {
+    .flag {
+      order: 1;
+    }
+  }

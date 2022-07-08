@@ -6,6 +6,7 @@ var citySearchFormEl = $( '#citySearch' );
 var cityInputEl = $( '#cityInput' );
 var mainEl = $( '#main' );
 var currentWeatherDisplayEl = $( '#currentWeatherDisplay' );
+var lastSearch;
 
 const metric = { 
     query: 'metric',
@@ -18,16 +19,6 @@ const imperial = {
     speed: 'mph',
     tempChar: '&#8457;'
  };
-
-// Icons for display
- const dropletIcon = $( '<i>' ).addClass( 'bi bi-droplet' );
- const thermometerIcon = $( '<i>' ).addClass( 'bi bi-thermometer-half' );
- const windIcon = $( '<i>' ).addClass( 'bi bi-wind' );
- const sunIcon = $( '<i>' ).addClass( 'bi bi-sun' );
- const sunriseIcon = $( '<i>' ).addClass( 'bi bi-sunrise' );
- const sunsetIcon = $( '<i>' ).addClass( 'bi bi-sunset' );
- const cloudSunIcon = $( '<i>' ).addClass( 'bi bi-cloud-sun' );
- const moistureIcon = $( '<i>' ).addClass( 'bi bi-moisture' );
 
 // set units to imperial by default
  var units = imperial;
@@ -48,9 +39,9 @@ function toggleUnits ( ) {
 
     toggleUnitsEl.html( units.tempChar );
 
-    if( cityInputEl.val() ) {
+    if( lastSearch ) {
 
-        getLatLong( cityInputEl.val() );
+        getLatLong( lastSearch );
 
     }
 
@@ -144,7 +135,7 @@ function degToCardinal ( degrees ) {
     return 'N';
 }
 
-// generates a compass to display wind direction
+// generates and returns compass to display wind direction
 function generateCompass ( direction ) {
 
     var compassEl = $( '<div>' );
@@ -183,13 +174,16 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
     var largeWeatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
     var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
-    var countryFlagEl = $( '<img>' ).attr( 'src', 'https://countryflagsapi.com/svg/' + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).css( 'height', '4rem' ).addClass( 'float-start m-3' );
+    var countryFlagEl = $( '<img>' ).attr( 'src', 'https://countryflagsapi.com/svg/' + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).addClass( 'm-3 flag' );
 
+    // Add elements to city header
     cityNameEl.append( countryFlagEl, ' ', cityName );
 
     if ( state ) cityNameEl.append( ' - ', state );
 
     cityNameEl.append( ', ', countryCodes[ country ], largeWeatherIconEl );
+    cityNameEl.addClass( 'd-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center' );
+
     // Current conditions banner
     var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center' );
     var currentConditionsBannerEl = $( '<h2>' ).addClass( 'header bg-navy text-light p-3' );
@@ -205,7 +199,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     // append elements to banner
     bannerRowEl.append( currentConditionsBannerEl, updatedEl );
 
-    // conditions card
+    // current weather conditions
     var conditionsRowEl = $( '<div>' ).addClass( 'row m-3' );
     var conditionsColEl = $( '<div>' ).addClass( 'col-md-6' );
     var conditionsCardEl = $( '<div>' ).addClass( 'card my-2 h-100' );
@@ -254,6 +248,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     conditionsRowEl.append( conditionsColEl );
 
 
+    // elements for wind card
     var windColEl =  $( '<div>' ).addClass( 'col-md-6' );
     var windCardEl = $( '<div>' ).addClass( 'card my-2 text-center h-100' );
     var windGusts;
@@ -302,9 +297,12 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
         </div>
     ` );
 
+    // Append card to column and column to row
     windColEl.append( windCardEl );
     conditionsRowEl.append( windColEl );
 
+
+    // elements for UVI
     var UVIrowEl = $( '<div>' ).addClass( 'row m-3 justify-content-center' );
     var UVIcolEl = $( '<div>' ).addClass( 'col-12' );
     var UVICard = $( '<div>' ).addClass( 'card my-2' );
@@ -315,15 +313,15 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     </div>
     ` );
 
-    UVICard.append( getUVImessageCard( currentWeatherData.uvi ) )
+    UVICard.append( getUVImessageCard( currentWeatherData.uvi ) );
 
+    // Append card to column and column to row
     UVIcolEl.append( UVICard );
     UVIrowEl.append( UVIcolEl );
 
+    // append all rows to fragment and replace contents of display element with fragment
     currentWeatherFrag.append( cityNameEl, bannerRowEl, conditionsRowEl, UVIrowEl );
-    currentWeatherDisplayEl.html( currentWeatherFrag )
-    console.log( cityName );
-    console.log( currentWeatherData );
+    currentWeatherDisplayEl.html( currentWeatherFrag );
 
 }
 
@@ -430,7 +428,9 @@ citySearchFormEl.submit( function ( event ) {
     event.preventDefault();
     if( cityInputEl.val() ) {
 
-        getLatLong( cityInputEl.val() ); 
+        lastSearch = cityInputEl.val();
+        getLatLong( cityInputEl.val() );
+        cityInputEl.val( '' );
 
     }
     
