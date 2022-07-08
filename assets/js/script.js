@@ -1,4 +1,4 @@
-var openWeatherApiRootUrl = 'http://api.openweathermap.org';
+var openWeatherApiRootUrl = 'https://api.openweathermap.org';
 var openWeatherApiKey = '1008cf8d4beec486e3a918845ef87da6';
 var getWeatherButtonEl = $( '#getWeather' );
 var toggleUnitsEl = $( '#toggleUnits' );
@@ -172,7 +172,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
 
     // city header
     var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
-    var largeWeatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
+    var largeWeatherIconUrl = `https://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
     var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
     var countryFlagEl = $( '<img>' ).attr( 'src', 'https://countryflagsapi.com/svg/' + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).addClass( 'm-3 flag' );
 
