@@ -1,4 +1,5 @@
 var openWeatherApiRootUrl = 'https://api.openweathermap.org';
+var openWeatherImageRootUrl = 'https://openweathermap.org/img/wn';
 var openWeatherApiKey = '1008cf8d4beec486e3a918845ef87da6';
 var getWeatherButtonEl = $( '#getWeather' );
 var toggleUnitsEl = $( '#toggleUnits' );
@@ -172,7 +173,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
 
     // city header
     var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
-    var largeWeatherIconUrl = `https://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
+    var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ currentWeatherData.weather[0].icon }@2x.png`;
     var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
     var countryFlagEl = $( '<img>' ).attr( 'src', 'https://countryflagsapi.com/svg/' + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).addClass( 'm-3 flag' );
 
@@ -210,7 +211,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
 
     // conditions card to display information
     conditionsCardEl.html( `
-        <h4 class="card-header bg-dark text-light text-center">${ currentWeatherData.weather[0].main } <img src="http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }.png" alt="${ currentWeatherData.weather[0].main } Icon"></h4>
+        <h4 class="card-header bg-dark text-light text-center">${ currentWeatherData.weather[0].main } <img src="${ openWeatherImageRootUrl }/${ currentWeatherData.weather[0].icon }.png" alt="${ currentWeatherData.weather[0].main } Icon"></h4>
         <div class="row justify-content-center">
             <div class="col-sm-5">
                 <div class="card text-center my-2 mx-3 mx-sm-0">
