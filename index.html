@@ -15,27 +15,31 @@
     </header>
     <main id="main" class="container-fluid">
         <div class="row justify-content-center p-4 p-xl-0">
+            <!-- Search Box -->
             <aside class="card col-xl-3 p-0 m-3">
                 <h2 class="card-header text-center bg-dark text-light">City Search</h2>
                 <form id="citySearch" class="row p-2">
                     <div class="col-8">
-                        <input type="text" name="search" id="cityInput" class="form-control">
+                        <input type="text" name="Search Box" id="cityInput" class="form-control" placeholder="City Name">
                     </div>
                     <div class="col-4">
-                        <input type="submit" value="Search" class="btn btn-dark bg-navy text-light w-100">
+                        <input type="submit" value="Search" class="btn btn-secondary bg-navy text-light w-100" aria-label="Search">
                     </div>
                 </form>
+                <!-- Imperial / Metric Toggle -->
                 <div class="row p-3 justify-content-end">
-                    <div class="col-6 text-end">
-                        <span class="fw-bold">&#8457; </span>
-                         <label class="switch">
+                    <div class="col-6 text-end d-flex justify-content-end align-items-center">
+                        <span class="fw-bold">&#8457;&nbsp;</span>
+                         <label class="switch" for="toggleUnits">
                              <input type="checkbox" id="toggleUnits">
                              <span class="slider bg-navy"></span>
                          </label>
-                         <span class="fw-bold"> &#8451;</span>
+                         <span class="fw-bold">&nbsp;&#8451;</span>
                      </div>
                 </div>
             </aside>
+
+            <!-- Current Weather Display Box -->
             <section id="currentWeatherDisplay" class="card col-xl-8 p-0 m-3"></section>
         </div>
     </main>
