@@ -174,7 +174,7 @@ function generateCompass ( direction ) {
 }
 
 // displays current weather on the screen
-function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
+function displayCurrentWeather ( cityName, currentWeatherData, timezone, country, state ) {
 
     // document fragment for current weather
     var currentWeatherFrag = $( document.createDocumentFragment() );
@@ -183,9 +183,13 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone ) {
     var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
     var largeWeatherIconUrl = `http://openweathermap.org/img/wn/${ currentWeatherData.weather[0].icon }@2x.png`;
     var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
+    var countryFlagEl = $( '<img>' ).attr( 'src', 'https://countryflagsapi.com/svg/' + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).css( 'height', '4rem' ).addClass( 'float-start m-3' );
 
-    cityNameEl.append( cityName, largeWeatherIconEl );
+    cityNameEl.append( countryFlagEl, ' ', cityName );
 
+    if ( state ) cityNameEl.append( ' - ', state );
+
+    cityNameEl.append( ', ', countryCodes[ country ], largeWeatherIconEl );
     // Current conditions banner
     var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center' );
     var currentConditionsBannerEl = $( '<h2>' ).addClass( 'header bg-navy text-light p-3' );
@@ -335,9 +339,9 @@ function display5DayForecast ( weatherForecast ) {
 }
 
 // displays weather on the screen
-function displayWeather ( cityName, weatherData ) {
+function displayWeather ( cityName, weatherData, country, state ) {
 
-    displayCurrentWeather( cityName, weatherData.current, weatherData.timezone );
+    displayCurrentWeather( cityName, weatherData.current, weatherData.timezone, country, state );
     display5DayForecast( weatherData.daily );
 
 }
@@ -409,7 +413,7 @@ function getWeather ( location ) {
         } )
         .then ( function ( weatherData ) {
 
-            displayWeather(  cityName, weatherData );
+            displayWeather(  cityName, weatherData, location.country, location.state );
         
         } )
         .catch ( function ( error ) {

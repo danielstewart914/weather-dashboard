@@ -3,6 +3,10 @@
     --unit: 0.3rem;
 }
 
+.flag {
+  height: 3rem;
+}
+
 /* compass classes */
 .compass {
     margin: 1em;
@@ -208,5 +212,5 @@
   }
 
   .bg-navy {
-    background-color: #27285C;
+    background-color: #202a44;
   }
