@@ -21,8 +21,16 @@ const imperial = {
     tempChar: '&#8457;'
  };
 
-// set units to imperial by default
- var units = imperial;
+// checks local storage for user preference for metric otherwise sets units to imperial by default
+ var units;
+
+ if ( localStorage.getItem( 'units' ) === 'metric' ) { 
+
+    units = metric;
+    toggleUnitsEl.prop( 'checked', true );
+ }
+
+ else units = imperial;
 
 
 // toggle between imperial and metric units
@@ -31,10 +39,12 @@ function toggleUnits ( ) {
     if ( units.query === 'imperial' ) {
 
         units = metric;
+        localStorage.setItem( 'units', 'metric' );
 
     } else {
 
         units = imperial;
+        localStorage.setItem( 'units', 'imperial' );
 
     }
 
@@ -219,22 +229,22 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
                     <span class="fw-bold p-1">${ currentWeatherData.temp } ${ units.tempChar }</span>
                 </div>
                 <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-droplet"></i> Dew Point</h6>
-                    <span class="fw-bold p-1">${ currentWeatherData.dew_point } ${ units.tempChar }</span>
-                </div>
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-sunrise"></i> Sunrise</h6>
-                    <span class="fw-bold p-1">${ sunrise }</span>
-                </div>
-            </div>
-            <div class="col-sm-5">
-                <div class="card text-center my-2 mx-3 mx-sm-0">
                     <h6 class="card-header bg-navy text-light"><i class="bi bi-moisture"></i> Humidity</h6>
                     <span class="fw-bold p-1">${ currentWeatherData.humidity }%</span>
                 </div>
                 <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-droplet"></i> Dew Point</h6>
+                    <span class="fw-bold p-1">${ currentWeatherData.dew_point } ${ units.tempChar }</span>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="card text-center my-2 mx-3 mx-sm-0">
                     <h6 class="card-header bg-navy text-light"><i class="bi bi-cloud-sun"></i> Cloud Cover</h6>
                     <span class="fw-bold p-1">${ currentWeatherData.clouds }%</span>
+                </div>
+                <div class="card text-center my-2 mx-3 mx-sm-0">
+                    <h6 class="card-header bg-navy text-light"><i class="bi bi-sunrise"></i> Sunrise</h6>
+                    <span class="fw-bold p-1">${ sunrise }</span>
                 </div>
                 <div class="card text-center my-2 mx-3 mx-sm-0">
                     <h6 class="card-header bg-navy text-light"><i class="bi bi-sunset"></i> Sunset</h6>
@@ -251,7 +261,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
 
     // elements for wind card
     var windColEl =  $( '<div>' ).addClass( 'col-md-6' );
-    var windCardEl = $( '<div>' ).addClass( 'card my-2 text-center h-100' );
+    var windCardEl = $( '<div>' ).addClass( 'card my-2 text-center h-100 mt-4 mt-md-2' );
     var windGusts;
 
     if( currentWeatherData.wind_gust ) {
