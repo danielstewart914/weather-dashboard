@@ -1,13 +1,26 @@
+// open weather map api variables
 var openWeatherApiRootUrl = 'https://api.openweathermap.org';
 var openWeatherImageRootUrl = 'https://openweathermap.org/img/wn';
 var openWeatherApiKey = '1008cf8d4beec486e3a918845ef87da6';
-var getWeatherButtonEl = $( '#getWeather' );
+
+// country flag api
+var countryFlagApiUrl = 'https://countryflagsapi.com/svg/';
+
+// toggle for switching between imperial and metric
 var toggleUnitsEl = $( '#toggleUnits' );
+
+// search form
 var citySearchFormEl = $( '#citySearch' );
 var cityInputEl = $( '#cityInput' );
+
+// search history
+var searchHistoryEl = $( '#searchHistory' );
+
+// main display area
 var mainEl = $( '#main' );
 var currentWeatherDisplayEl = $( '#currentWeatherDisplay' );
-var lastSearch;
+
+var locationHistory = [];
 
 const metric = { 
     query: 'metric',
@@ -24,14 +37,25 @@ const imperial = {
 // checks local storage for user preference for metric otherwise sets units to imperial by default
  var units;
 
- if ( localStorage.getItem( 'units' ) === 'metric' ) { 
 
-    units = metric;
-    toggleUnitsEl.prop( 'checked', true );
+ function initializeSettings() {
+
+    if ( localStorage.getItem( 'units' ) === 'metric' ) { 
+
+        units = metric;
+        toggleUnitsEl.prop( 'checked', true );
+     }
+    
+     else units = imperial;
+
+     if ( localStorage.getItem( 'search-history' ) ) {
+
+        locationHistory = JSON.parse( localStorage.getItem( 'search-history' ) );
+     }
+
+     searchHistoryEl.html( renderHistory() );
+
  }
-
- else units = imperial;
-
 
 // toggle between imperial and metric units
 function toggleUnits ( ) {
@@ -50,9 +74,10 @@ function toggleUnits ( ) {
 
     toggleUnitsEl.html( units.tempChar );
 
-    if( lastSearch ) {
+    // if there is weather currently displayed on screen fetch and refresh data with new unit selection
+    if( currentWeatherDisplayEl.children().length ) {
 
-        getLatLong( lastSearch );
+        getLatLong( locationHistory[ locationHistory.length - 1 ] );
 
     }
 
@@ -176,7 +201,7 @@ function generateCompass ( direction ) {
 }
 
 // displays current weather on the screen
-function displayCurrentWeather ( cityName, currentWeatherData, timezone, country, state ) {
+function renderCurrentWeather ( cityName, currentWeatherData, timezone, country, state ) {
 
     // document fragment for current weather
     var currentWeatherFrag = $( document.createDocumentFragment() );
@@ -185,7 +210,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
     var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ currentWeatherData.weather[0].icon }@2x.png`;
     var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
-    var countryFlagEl = $( '<img>' ).attr( 'src', 'https://countryflagsapi.com/svg/' + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).addClass( 'm-3 flag' );
+    var countryFlagEl = $( '<img>' ).attr( 'src', countryFlagApiUrl + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).addClass( 'm-3 flag' );
 
     // Add elements to city header
     cityNameEl.append( countryFlagEl, ' ', cityName );
@@ -219,7 +244,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     var sunrise = luxon.DateTime.fromSeconds( currentWeatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
     var sunset = luxon.DateTime.fromSeconds( currentWeatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
 
-    // conditions card to display information
+    // card to display weather information temp, humidity, dew point, cloud cover, sunrise, and sunset
     conditionsCardEl.html( `
         <h4 class="card-header bg-dark text-light text-center">${ currentWeatherData.weather[0].main } <img src="${ openWeatherImageRootUrl }/${ currentWeatherData.weather[0].icon }.png" alt="${ currentWeatherData.weather[0].main } Icon"></h4>
         <div class="row justify-content-center">
@@ -274,6 +299,7 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
 
     }
 
+    // card to display wind conditions
     windCardEl.html( `
         <h5 class="card-header bg-dark text-light">
             <i class="bi bi-wind"></i> Wind
@@ -330,17 +356,18 @@ function displayCurrentWeather ( cityName, currentWeatherData, timezone, country
     UVIcolEl.append( UVICard );
     UVIrowEl.append( UVIcolEl );
 
-    // append all rows to fragment and replace contents of display element with fragment
+    // append all rows to fragment and return fragment
     currentWeatherFrag.append( cityNameEl, bannerRowEl, conditionsRowEl, UVIrowEl );
-    currentWeatherDisplayEl.html( currentWeatherFrag );
+    return currentWeatherFrag;
 
 }
 
 // displays 5 day forecast
-function display5DayForecast ( weatherForecast ) {
+function render5DayForecast ( weatherForecast ) {
 
     for ( var i = 0; i < weatherForecast.length; i++ ) {
 
+        // temp console log until function is written
         console.log( weatherForecast[i] );
 
     }
@@ -350,8 +377,8 @@ function display5DayForecast ( weatherForecast ) {
 // displays weather on the screen
 function displayWeather ( cityName, weatherData, country, state ) {
 
-    displayCurrentWeather( cityName, weatherData.current, weatherData.timezone, country, state );
-    display5DayForecast( weatherData.daily );
+    currentWeatherDisplayEl.html( renderCurrentWeather( cityName, weatherData.current, weatherData.timezone, country, state ) );
+    render5DayForecast( weatherData.daily );
 
 }
 
@@ -383,6 +410,7 @@ function getLatLong ( searchTerm ) {
 
             } else {
 
+                saveLocationToHistory( data[0].name );
                 getWeather( data[0] );
 
             }
@@ -433,13 +461,62 @@ function getWeather ( location ) {
 
 }
 
-// test form
+function saveLocationToHistory ( locationName ) {
+
+    var index = locationHistory.indexOf( locationName );
+
+    // if city is found in array
+    if ( index != -1 ) {
+
+        // splice it out of array
+        locationHistory.splice( index, 1 );
+
+    }
+
+    // push location to array
+    locationHistory.push( locationName );
+
+    // if array is too long remove first item
+    if ( locationHistory.length > 10 ) { locationHistory.shift(); }
+
+    // store in local storage
+    localStorage.setItem( 'search-history', JSON.stringify( locationHistory ) );
+
+    // render history to the screen
+    searchHistoryEl.html( renderHistory() );
+    
+}
+
+function renderHistory () {
+
+    var historyFrag = $( document.createDocumentFragment() );
+
+    for ( var i = locationHistory.length -1; i >= 0; i--  ) { 
+        
+        historyFrag.append( renderHistoryButton( locationHistory[i] ) ); 
+    
+    }
+
+    return historyFrag;
+
+}
+
+function renderHistoryButton ( buttonTitle ) {
+
+    var buttonEl = $( '<button>' ).addClass( 'btn btn-dark bg-navy text-light' );
+
+    buttonEl.text( buttonTitle );
+    buttonEl.data( 'city', buttonTitle );
+
+    return buttonEl;
+}
+
+// city search form
 citySearchFormEl.submit( function ( event ) {
 
     event.preventDefault();
     if( cityInputEl.val() ) {
 
-        lastSearch = cityInputEl.val();
         getLatLong( cityInputEl.val() );
         cityInputEl.val( '' );
 
@@ -447,5 +524,15 @@ citySearchFormEl.submit( function ( event ) {
     
 } );
 
+initializeSettings();
 
 toggleUnitsEl.change( toggleUnits );
+
+// search for city from search history when button is clicked
+searchHistoryEl.on( 'click', 'button', function ( event ) {
+
+    var city = $( event.target).data( 'city' );
+
+    getLatLong( city );
+
+} );
