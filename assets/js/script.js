@@ -12,6 +12,7 @@ var toggleUnitsEl = $( '#toggleUnits' );
 // search form
 var citySearchFormEl = $( '#citySearch' );
 var cityInputEl = $( '#cityInput' );
+var searchErrorEl = $( '#searchError' );
 
 // search history
 var searchHistoryEl = $( '#searchHistory' );
@@ -456,11 +457,12 @@ function getLatLong ( searchTerm ) {
 
             if ( !data[0] ) {
 
-                alert ( 'Not a Valid Location!' );
+                searchErrorEl.text( searchTerm + ' - Is Not a Valid Location!' );
 
             } else {
 
                 saveLocationToHistory( data[0].name );
+                searchErrorEl.text( '' );
                 getWeather( data[0] );
 
             }
@@ -582,8 +584,6 @@ citySearchFormEl.submit( function ( event ) {
 // search for city from search history when button is clicked
 searchHistoryEl.on( 'click', 'button', function ( event ) {
 
-    var city = $( event.target).data( 'city' );
-
-    getLatLong( city );
+    getLatLong( $( event.target).data( 'city' ) );
 
 } );

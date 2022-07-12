@@ -20,8 +20,8 @@
                 <h2 class="card-header text-center bg-dark text-light">City Search</h2>
                 <form id="citySearch" class="row p-2">
                     <div class="col-8 form-floating">
+                        <input type="text" name="Search Box" id="cityInput" class="form-control" placeholder="Enter City Name">
                         <label class="form-label ms-3" for="cityInput">Enter City Name</label>
-                        <input type="text" name="Search Box" id="cityInput" class="form-control">
                     </div>
                     <div class="col-4">
                         <input type="submit" value="Search" class="btn btn-secondary bg-navy text-light w-100 h-100" aria-label="Search">
@@ -29,6 +29,7 @@
                 </form>
                 <!-- Imperial / Metric Toggle -->
                 <div class="row p-3 justify-content-end">
+                    <span id="searchError" class="fw-bold text-danger">&nbsp;</span>
                     <div class="col-6 text-end d-flex justify-content-end align-items-center">
                         <span class="fw-bold">&#8457;&nbsp;</span>
                          <label class="switch" for="toggleUnits">
