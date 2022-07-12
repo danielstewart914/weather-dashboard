@@ -444,7 +444,10 @@ function generate5DayCard ( weatherForecast, timezone, index ) {
     var date = luxon.DateTime.fromSeconds( weatherForecast.dt, { zone: timezone } ).toLocaleString( luxon.DateTime.DATE_FULL );
     var moreButtonEl = $( '<button>' ).addClass( 'btn btn-success text-light m-3' ).text( 'See More' ).data( 'index', index );
 
-    cardHeaderEl.text( date );
+    var weatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherForecast.weather[0].icon }.png`;
+    var weatherIconEl = $( '<img>' ).attr( { src: weatherIconUrl, alt: weatherForecast.weather[0].main + ' weather Icon' } );
+
+    cardHeaderEl.append( date, weatherIconEl, weatherForecast.weather[0].main );
     cardEl.append( 
         cardHeaderEl,
         generateSmallCard(
