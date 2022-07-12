@@ -19,11 +19,12 @@
             <aside class="card col-xl-3 p-0 m-3">
                 <h2 class="card-header text-center bg-dark text-light">City Search</h2>
                 <form id="citySearch" class="row p-2">
-                    <div class="col-8">
-                        <input type="text" name="Search Box" id="cityInput" class="form-control" placeholder="City Name">
+                    <div class="col-8 form-floating">
+                        <label class="form-label ms-3" for="cityInput">Enter City Name</label>
+                        <input type="text" name="Search Box" id="cityInput" class="form-control">
                     </div>
                     <div class="col-4">
-                        <input type="submit" value="Search" class="btn btn-secondary bg-navy text-light w-100" aria-label="Search">
+                        <input type="submit" value="Search" class="btn btn-secondary bg-navy text-light w-100 h-100" aria-label="Search">
                     </div>
                 </form>
                 <!-- Imperial / Metric Toggle -->
@@ -31,16 +32,27 @@
                     <div class="col-6 text-end d-flex justify-content-end align-items-center">
                         <span class="fw-bold">&#8457;&nbsp;</span>
                          <label class="switch" for="toggleUnits">
-                             <input type="checkbox" id="toggleUnits">
+                             <input type="checkbox" aria-role="switch" id="toggleUnits" aria-label="Select Between Imperial and Metric Units">
                              <span class="slider bg-navy"></span>
                          </label>
                          <span class="fw-bold">&nbsp;&#8451;</span>
                      </div>
                 </div>
+                <div id="searchHistory" class="row row-cols-12 row-cols-sm-3 row-cols-md-5 row-cols-xl-1 px-5 py-2 justify-content-center gap-2"></div>
             </aside>
 
             <!-- Current Weather Display Box -->
             <section id="currentWeatherDisplay" class="card col-xl-8 p-0 m-3"></section>
+
+            <!-- 5 Day Forecast Display Box -->
+            <section class="card p-0 col-11">
+                <h3 class="card-header bg-dark text-light m-0 text-center">Five Day Forecast</h3>
+                <div class="row justify-content-center mx-2">
+                    <div id="fiveDayForecast" class="row row-cols-md-3 row-cols-lg-4 row-cols-xxl-6 gap-2 justify-content-center">
+                        
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
     

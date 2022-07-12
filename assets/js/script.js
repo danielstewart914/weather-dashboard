@@ -49,7 +49,8 @@ const imperial = {
  var units;
 
 
- function initializeSettings() {
+// initialize search history and unit selection from local storage
+function initializeSettings() {
 
     if ( localStorage.getItem( 'units' ) === 'metric' ) { 
 
@@ -104,6 +105,7 @@ function colorUVI ( uvi ) {
     return 'UVextreme';
 }
 
+// returns Name of current UV conditions
 function getUVIlevel ( uvi ) {
 
     if ( uvi <= 2 ) return 'Low';
@@ -113,6 +115,7 @@ function getUVIlevel ( uvi ) {
     return 'Extreme';
 }
 
+// returns UV message base on level
 function getUVImessageCard ( uvi ) {
 
     var listEL = $( '<ul>' );
@@ -210,7 +213,7 @@ function generateSmallCard ( title, icon, info, additionalClasses, childEl ) {
     var cardBodyEl = $( '<span>' ).addClass( 'fw-bold p-1' );
 
     cardHeaderEl.append( icon, ' ', title );
-    cardBodyEl.text( info );
+    cardBodyEl.html( info );
 
     cardEl.append( cardHeaderEl, cardBodyEl, childEl );
 
@@ -281,7 +284,7 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
     bannerRowEl.append( currentConditionsBannerEl, updatedEl );
 
     // current weather conditions
-    var conditionsRowEl = $( '<div>' ).addClass( 'row m-3' );
+    var primaryRowEl = $( '<div>' ).addClass( 'row m-3' );
     var conditionsColEl = $( '<div>' ).addClass( 'col-md-6' );
 
     // small weather conditions icon
@@ -295,7 +298,7 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
     // create large card with the following data: Temperature, Humidity, Dew Point, Cloud Cover, Sunrise, Sunset
     var conditionsCardEl = generateLargeCard(
         'card my-2 h-100',                      // Classes to add to card
-        weatherData.weather[0].main,            // Titles ( Weather Conditions )
+        weatherData.weather[0].main,            // Title ( Weather Conditions )
         weatherIconEl,                          // Icon ( Weather Conditions Icon )
         generateCardColumn(
             generateSmallCard(
@@ -341,7 +344,7 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
 
     // Append card to column and column to row
     conditionsColEl.append( conditionsCardEl );
-    conditionsRowEl.append( conditionsColEl );
+    primaryRowEl.append( conditionsColEl );
 
     // elements for wind card
     var windColEl =  $( '<div>' ).addClass( 'col-md-6' );
@@ -383,7 +386,7 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
 
     // Append card to column and column to row
     windColEl.append( windCardEl );
-    conditionsRowEl.append( windColEl );
+    primaryRowEl.append( windColEl );
 
 
     // elements for UVI
@@ -404,7 +407,7 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
     UVIrowEl.append( UVIcolEl );
 
     // append all rows to fragment and return fragment
-    currentWeatherFrag.append( cityNameEl, bannerRowEl, conditionsRowEl, UVIrowEl );
+    currentWeatherFrag.append( cityNameEl, bannerRowEl, primaryRowEl, UVIrowEl );
     return currentWeatherFrag;
 
 }
