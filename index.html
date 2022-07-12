@@ -17,7 +17,7 @@
         <div class="row justify-content-center p-4 p-xl-0">
             <!-- Search Box -->
             <aside class="card col-xl-3 p-0 m-3">
-                <h2 class="card-header text-center bg-dark text-light">City Search</h2>
+                <h2 class="card-header text-center bg-dark text-light">Search for a City</h2>
                 <form id="citySearch" class="row p-2">
                     <div class="col-8 form-floating">
                         <input type="text" name="Search Box" id="cityInput" class="form-control" placeholder="Enter City Name">
@@ -46,12 +46,10 @@
             <section id="currentWeatherDisplay" class="card col-xl-8 p-0 m-3"></section>
 
             <!-- 5 Day Forecast Display Box -->
-            <section class="card p-0 col-11">
-                <h3 class="card-header bg-dark text-light m-0 text-center">Five Day Forecast</h3>
-                <div class="row justify-content-center mx-2">
-                    <div id="fiveDayForecast" class="row row-cols-md-3 row-cols-lg-4 row-cols-xxl-6 gap-2 justify-content-center">
-                        
-                    </div>
+            <section id="fiveDayForecast" class="card p-0 col-11"></section>
+            <section class="modal modal-xl fade" id="weatherModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog col-11" role="document">
+                    <div id="fullWeather" class="modal-content"></div>
                 </div>
             </section>
         </div>

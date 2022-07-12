@@ -17,12 +17,14 @@ var searchErrorEl = $( '#searchError' );
 // search history
 var searchHistoryEl = $( '#searchHistory' );
 
-// main display area
-var mainEl = $( '#main' );
+var fullWeatherEl = $( '#fullWeather' );
+
+// display elements
 var currentWeatherDisplayEl = $( '#currentWeatherDisplay' );
 var fiveDayForecastDisplayEl = $( '#fiveDayForecast' );
 
 var locationHistory = [];
+var forecastFragments = [];
 
 const metric = { 
     query: 'metric',
@@ -90,7 +92,7 @@ function toggleUnits ( ) {
     // if there is weather currently displayed on screen fetch and refresh data with new unit selection
     if( currentWeatherDisplayEl.children().length ) {
 
-        getLatLong( locationHistory[ locationHistory.length - 1 ] );
+        fetchLatLong( locationHistory[ locationHistory.length - 1 ] );
 
     }
 
@@ -207,9 +209,9 @@ function generateCompass ( direction ) {
 }
 
 // generates small cards with weather info
-function generateSmallCard ( title, icon, info, additionalClasses, childEl ) {
+function generateSmallCard ( title, icon, info, cardClasses, childEl ) {
 
-    var cardEl = $( '<div>' ).addClass( 'card text-center my-2 mx-3 mx-sm-0' + ' ' + additionalClasses );
+    var cardEl = $( '<div>' ).addClass( cardClasses );
     var cardHeaderEl = $( '<h6>' ).addClass( 'card-header bg-navy text-light' );
     var cardBodyEl = $( '<span>' ).addClass( 'fw-bold p-1' );
 
@@ -222,7 +224,7 @@ function generateSmallCard ( title, icon, info, additionalClasses, childEl ) {
 
 }
 
-// generates large cards with 20 columns of weather info
+// generates large cards with 2 columns of weather info
 function generateLargeCard( classes, title, icon, column1, column2 ) {
 
 
@@ -230,7 +232,7 @@ function generateLargeCard( classes, title, icon, column1, column2 ) {
     var headerEl = $( '<h4>' ).addClass( 'card-header bg-dark text-light text-center' );
     var rowEl = $( '<div>' ).addClass( 'row justify-content-center' );
 
-    headerEl.append( icon, title );
+    headerEl.append( icon, ' ', title );
     rowEl.append( column1, column2 );
     cardEl.append( headerEl, rowEl );
 
@@ -238,6 +240,7 @@ function generateLargeCard( classes, title, icon, column1, column2 ) {
 
 }
 
+// generates and returns a bootstrap column and with up to 3 elements appended to it
 function generateCardColumn ( element1, element2, element3 ) {
 
     var columnEl = $( '<div>' ).addClass( 'col-sm-5' );
@@ -248,14 +251,14 @@ function generateCardColumn ( element1, element2, element3 ) {
 
 }
 
-// displays current weather on the screen
-function renderWeather ( cityName, weatherData, timezone, country, state ) {
+// renders full weather onto document fragment and returns that fragment
+function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country, state ) {
 
     // document fragment for current weather
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
     // city header
-    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center' );
+    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center p-2 pt-3' );
 
     // Large weather conditions icon
     var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherData.weather[0].icon }@2x.png`;
@@ -273,13 +276,21 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
     var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center' );
     var currentConditionsBannerEl = $( '<h2>' ).addClass( 'header bg-navy text-light p-3' );
     var updatedEl = $( '<footer>' ).addClass( 'small' );
-    var fetchDateTime = luxon.DateTime.fromSeconds( weatherData.dt, { zone: timezone } );
+
+    // dates and times
+    var displayDate = luxon.DateTime.fromSeconds( weatherData.dt, { zone: timezone } );
+    var fetchDateTimeDisplay = luxon.DateTime.fromSeconds( fetchDateTime, { zone: timezone } );
+    var preface;
+
+    // if displaying current weather conditions add 'Current' to the display else add 'upcoming'
+    if ( fetchDateTime === weatherData.dt ) preface = 'Current ';
+    else preface = 'Upcoming ';
 
     // Add date of weather fetch to banner
-    currentConditionsBannerEl.append( 'Current Conditions - ', fetchDateTime.toLocaleString( luxon.DateTime.DATE_FULL ) );
+    currentConditionsBannerEl.append( preface, 'Conditions for - ', displayDate.toLocaleString( luxon.DateTime.DATE_FULL ) );
 
     // Add time of weather fetch to banner footer
-    updatedEl.append( 'As of ', fetchDateTime.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
+    updatedEl.append( 'As of ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.DATE_FULL ), ' ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
 
     // append elements to banner
     bannerRowEl.append( currentConditionsBannerEl, updatedEl );
@@ -296,6 +307,11 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
     var sunrise = luxon.DateTime.fromSeconds( weatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
     var sunset = luxon.DateTime.fromSeconds( weatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
 
+    // 
+    var temperature;
+    if( weatherData.temp.day ) temperature = weatherData.temp.day;
+    else temperature = weatherData.temp;
+
     // create large card with the following data: Temperature, Humidity, Dew Point, Cloud Cover, Sunrise, Sunset
     var conditionsCardEl = generateLargeCard(
         'card my-2 h-100',                      // Classes to add to card
@@ -305,20 +321,20 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
             generateSmallCard(
                 'Temperature',
                 thermometerIcon,
-                weatherData.temp + ' ' + units.tempChar,
-                ''
+                temperature + ' ' + units.tempChar,
+                'card text-center my-2 mx-3 mx-sm-0'
             ),
             generateSmallCard(
                 'Humidity',
                 moistureIcon,
                 weatherData.humidity + '%',
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             ),
             generateSmallCard(
                 'Dew Point',
                 dropletIcon,
                 weatherData.dew_point + ' ' + units.tempChar,
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             )
         ),
         generateCardColumn(
@@ -326,24 +342,24 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
                 'Cloud Cover',
                 cloudSunIcon,
                 weatherData.clouds + '%',
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             ),
             generateSmallCard(
                 'Sunrise',
                 sunriseIcon,
                 sunrise,
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             ),
             generateSmallCard(
                 'Sunset',
                 sunriseIcon,
                 sunset,
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             )
         )
     );
 
-    // Append card to column and column to row
+    // Append card to column and column to primary row
     conditionsColEl.append( conditionsCardEl );
     primaryRowEl.append( conditionsColEl );
 
@@ -365,13 +381,13 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
                 'Speed',
                 '',
                 weatherData.wind_speed + ' ' + units.speed,
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             ),
             generateSmallCard(
                 'Gusts',
                 '',
                 windGusts,
-                ''
+                'card text-center my-2 mx-3 mx-sm-0'
             )
         ),
         generateCardColumn(
@@ -379,13 +395,13 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
                 'Direction',
                 '',
                 degToCardinal( weatherData.wind_deg ),
-                'h-100',
+                'card text-center my-2 mx-3 mx-sm-0 h-100',
                 generateCompass( weatherData.wind_deg )
             )
         )
     );
 
-    // Append card to column and column to row
+    // Append card to column and column to primary row
     windColEl.append( windCardEl );
     primaryRowEl.append( windColEl );
 
@@ -403,7 +419,7 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
 
     UVICard.append( getUVImessageCard( weatherData.uvi ) );
 
-    // Append card to column and column to row
+    // Append card to column and column to UVI row
     UVIcolEl.append( UVICard );
     UVIrowEl.append( UVIcolEl );
 
@@ -413,28 +429,92 @@ function renderWeather ( cityName, weatherData, timezone, country, state ) {
 
 }
 
+// generates and returns a card for the 5 day forecast
+function generate5DayCard ( weatherForecast, timezone, index ) {
+
+    var cardEl = $( '<div>' ).addClass( 'card text-center my-2 mx-3 p-0' );
+    var cardHeaderEl = $( '<h5>' ).addClass( 'card-header bg-dark text-light' );
+    var date = luxon.DateTime.fromSeconds( weatherForecast.dt, { zone: timezone } ).toLocaleString( luxon.DateTime.DATE_FULL );
+    var moreButtonEl = $( '<button>' ).addClass( 'btn btn-success text-light m-3' ).text( 'See More' ).data( 'index', index );
+
+    cardHeaderEl.text( date );
+    cardEl.append( 
+        cardHeaderEl,
+        generateSmallCard(
+            'Temperature',
+            thermometerIcon,
+            weatherForecast.temp.day + ' ' + units.tempChar,
+            'card text-center my-2 mx-3'
+        ),
+        generateSmallCard(
+            'Humidity',
+            moistureIcon,
+            weatherForecast.humidity + '%',
+            'card text-center my-2 mx-3'
+        ),
+        generateSmallCard(
+            'Wind Speed',
+            windIcon,
+            weatherForecast.wind_speed + ' ' + units.speed,
+            'card text-center my-2 mx-3'
+        ),
+        moreButtonEl
+    )
+
+    return cardEl;
+}
+
 // displays 5 day forecast
-function render5DayForecast ( weatherForecast ) {
+function render5DayForecast ( weatherForecast, timezone, fetchDateTime, cityName, country, state ) {
+
+    var fiveDayForecastFrag = $( document.createDocumentFragment() );
+
+    var startDate = luxon.DateTime.now().setZone( timezone ).plus( { days: 1 } ).startOf( 'day' );
+    var endDate = luxon.DateTime.now().setZone( timezone ).plus( { days: 6 } ).startOf( 'day' );
+
+    var headerEl = $( '<h3>' ).addClass( 'card-header bg-dark text-light m-0 text-center' ).text( 'Five Day Forecast' );
+    var rowEl = $( '<div>' ).addClass( 'row justify-content-center mx-2' );
+    var rowColEl = $( '<div>' ).addClass( 'row row-cols-md-3 row-cols-lg-4 row-cols-xxl-6 gap-2 justify-content-center' );
+
+    var forecastIndex = 0;
 
     for ( var i = 0; i < weatherForecast.length; i++ ) {
 
-        // temp console log until function is written
-        console.log( weatherForecast[i] );
+        var day = luxon.DateTime.fromSeconds( weatherForecast[i].dt, { zone: timezone } );
 
+        if ( day >= startDate && day < endDate ) {
+
+            rowColEl.append( generate5DayCard( weatherForecast[i], timezone, forecastIndex ) );
+
+            forecastFragments.push( renderWeather( cityName, weatherForecast[i], timezone, fetchDateTime, country, state ) );
+
+            forecastIndex++;
+
+        }
+        
     }
+
+    fiveDayForecastFrag.append( headerEl, rowEl );
+    rowEl.append( rowColEl );
+
+    return fiveDayForecastFrag;
 
 }
 
 // displays weather on the screen
 function displayWeather ( cityName, weatherData, country, state ) {
 
-    currentWeatherDisplayEl.html( renderWeather( cityName, weatherData.current, weatherData.timezone, country, state ) );
-    render5DayForecast( weatherData.daily );
+    // reset weather fragments
+    forecastFragments = [];
+    
+    // render weather
+    currentWeatherDisplayEl.html( renderWeather( cityName, weatherData.current, weatherData.timezone, weatherData.current.dt, country, state ) );
+    fiveDayForecastDisplayEl.html( render5DayForecast( weatherData.daily, weatherData.timezone, weatherData.current.dt, cityName, country, state ) );
 
 }
 
 // fetches the latitude and longitude for a given search query
-function getLatLong ( searchTerm ) {
+function fetchLatLong ( searchTerm ) {
 
     var locationUrl = `${ openWeatherApiRootUrl }/geo/1.0/direct?q=${ searchTerm }&appid=${ openWeatherApiKey }`;
 
@@ -463,7 +543,7 @@ function getLatLong ( searchTerm ) {
 
                 saveLocationToHistory( data[0].name );
                 searchErrorEl.text( '' );
-                getWeather( data[0] );
+                fetchWeather( data[0] );
 
             }
 
@@ -477,7 +557,7 @@ function getLatLong ( searchTerm ) {
 }
 
 // fetches weather data for a given location
-function getWeather ( location ) {
+function fetchWeather ( location ) {
 
     var lat = location.lat;
     var lon = location.lon;
@@ -513,6 +593,7 @@ function getWeather ( location ) {
 
 }
 
+// saves location to local storage
 function saveLocationToHistory ( locationName ) {
 
     var index = locationHistory.indexOf( locationName );
@@ -539,6 +620,7 @@ function saveLocationToHistory ( locationName ) {
     
 }
 
+// renders user search history
 function renderHistory () {
 
     var historyFrag = $( document.createDocumentFragment() );
@@ -553,6 +635,7 @@ function renderHistory () {
 
 }
 
+// creates a button with city name stored in data
 function renderHistoryButton ( buttonTitle ) {
 
     var buttonEl = $( '<button>' ).addClass( 'btn btn-dark bg-navy text-light' );
@@ -574,7 +657,7 @@ citySearchFormEl.submit( function ( event ) {
     event.preventDefault();
     if( cityInputEl.val() ) {
 
-        getLatLong( cityInputEl.val() );
+        fetchLatLong( cityInputEl.val() );
         cityInputEl.val( '' );
 
     }
@@ -584,6 +667,29 @@ citySearchFormEl.submit( function ( event ) {
 // search for city from search history when button is clicked
 searchHistoryEl.on( 'click', 'button', function ( event ) {
 
-    getLatLong( $( event.target).data( 'city' ) );
+    fetchLatLong( $( event.target).data( 'city' ) );
+
+} );
+
+fiveDayForecastDisplayEl.on( 'click', 'button', function ( event ) {
+
+    // clone document fragment at index of button clicked and store in variable
+    var frag = forecastFragments[$( event.target ).data( 'index' )].clone();
+    var footerEl = $( '<div>' ).addClass( 'row justify-content-center' );
+    var closeButtonEl = $( '<button>' ).addClass( 'btn btn-danger text-light m-3 col-10 col-md-6 col-lg-4' ).text( 'close' );
+
+    // render to modal
+    fullWeatherEl.html( frag );
+    footerEl.append( closeButtonEl );
+    fullWeatherEl.append( footerEl );
+
+    // display modal
+    $('#weatherModal').modal( 'toggle' );
+
+} );
+
+fullWeatherEl.on( 'click', 'button', function () {
+
+    $('#weatherModal').modal( 'hide' );
 
 } );
