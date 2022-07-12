@@ -245,7 +245,7 @@ function generateLargeCard( classes, title, icon, column1, column2 ) {
 // generates and returns a bootstrap column and with up to 3 elements appended to it
 function generateCardColumn ( element1, element2, element3 ) {
 
-    var columnEl = $( '<div>' ).addClass( 'col-sm-5' );
+    var columnEl = $( '<div>' ).addClass( 'col-lg-5' );
 
     columnEl.append( element1, element2, element3 );
 
@@ -329,19 +329,19 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
                 'Temperature',
                 thermometerIcon,
                 temperature + ' ' + units.tempChar,
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             ),
             generateSmallCard(
                 'Humidity',
                 moistureIcon,
                 weatherData.humidity + '%',
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             ),
             generateSmallCard(
                 'Dew Point',
                 dropletIcon,
                 weatherData.dew_point + ' ' + units.tempChar,
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             )
         ),
         generateCardColumn(
@@ -349,19 +349,19 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
                 'Cloud Cover',
                 cloudSunIcon,
                 weatherData.clouds + '%',
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             ),
             generateSmallCard(
                 'Sunrise',
                 sunriseIcon,
                 sunrise,
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             ),
             generateSmallCard(
                 'Sunset',
                 sunriseIcon,
                 sunset,
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             )
         )
     );
@@ -388,13 +388,13 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
                 'Speed',
                 '',
                 weatherData.wind_speed + ' ' + units.speed,
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             ),
             generateSmallCard(
                 'Gusts',
                 '',
                 windGusts,
-                'card text-center my-2 mx-3 mx-sm-0'
+                'card text-center my-2 mx-3 mx-lg-0'
             )
         ),
         generateCardColumn(
@@ -402,7 +402,7 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
                 'Direction',
                 '',
                 degToCardinal( weatherData.wind_deg ),
-                'card text-center my-2 mx-3 mx-sm-0 h-100',
+                'card text-center my-2 mx-3 mx-lg-0 h-100',
                 generateCompass( weatherData.wind_deg )
             )
         )
