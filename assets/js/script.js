@@ -19,6 +19,7 @@ var searchHistoryEl = $( '#searchHistory' );
 // main display area
 var mainEl = $( '#main' );
 var currentWeatherDisplayEl = $( '#currentWeatherDisplay' );
+var fiveDayForecastDisplayEl = $( '#fiveDayForecast' );
 
 var locationHistory = [];
 
@@ -33,6 +34,16 @@ const imperial = {
     speed: 'mph',
     tempChar: '&#8457;'
  };
+
+ // Icons for display
+ const dropletIcon = $( '<i>' ).addClass( 'bi bi-droplet' );
+ const thermometerIcon = $( '<i>' ).addClass( 'bi bi-thermometer-half' );
+ const windIcon = $( '<i>' ).addClass( 'bi bi-wind' );
+ const sunIcon = $( '<i>' ).addClass( 'bi bi-sun' );
+ const sunriseIcon = $( '<i>' ).addClass( 'bi bi-sunrise' );
+ const sunsetIcon = $( '<i>' ).addClass( 'bi bi-sunset' );
+ const cloudSunIcon = $( '<i>' ).addClass( 'bi bi-cloud-sun' );
+ const moistureIcon = $( '<i>' ).addClass( 'bi bi-moisture' );
 
 // checks local storage for user preference for metric otherwise sets units to imperial by default
  var units;
@@ -174,23 +185,14 @@ function degToCardinal ( degrees ) {
 // generates and returns compass to display wind direction
 function generateCompass ( direction ) {
 
-    var compassEl = $( '<div>' );
-    var ringEl = $( '<div>' );
-    var northEl = $( '<div>' );
-    var eastEl = $( '<div>' );
-    var southEl = $( '<div>' );
-    var westEl = $( '<div>' );
-    var pointerEl = $( '<div>' );
-    var pointerBottomEl = $( '<div>' );
-
-    compassEl.addClass( 'compass' );
-    ringEl.addClass( 'ring' );
-    northEl.addClass( 'north direction' );
-    eastEl.addClass( 'east direction' );
-    southEl.addClass( 'south direction' );
-    westEl.addClass( 'west direction' );
-    pointerEl.addClass( 'pointer' );
-    pointerBottomEl.addClass( 'pointer-bottom' );
+    var compassEl = $( '<div>' ).addClass( 'compass mx-auto' );
+    var ringEl = $( '<div>' ).addClass( 'ring' );
+    var northEl = $( '<div>' ).addClass( 'north direction' );
+    var eastEl = $( '<div>' ).addClass( 'east direction' );
+    var southEl = $( '<div>' ).addClass( 'south direction' );
+    var westEl = $( '<div>' ).addClass( 'west direction' );
+    var pointerEl = $( '<div>' ).addClass( 'pointer' );
+    var pointerBottomEl = $( '<div>' ).addClass( 'pointer-bottom' );
 
     pointerEl.append( pointerBottomEl );
     compassEl.append( ringEl, northEl, eastEl, southEl, westEl, pointerEl );
@@ -200,31 +202,74 @@ function generateCompass ( direction ) {
     return compassEl;
 }
 
+// generates small cards with weather info
+function generateSmallCard ( title, icon, info, additionalClasses, childEl ) {
+
+    var cardEl = $( '<div>' ).addClass( 'card text-center my-2 mx-3 mx-sm-0' + ' ' + additionalClasses );
+    var cardHeaderEl = $( '<h6>' ).addClass( 'card-header bg-navy text-light' );
+    var cardBodyEl = $( '<span>' ).addClass( 'fw-bold p-1' );
+
+    cardHeaderEl.append( icon, ' ', title );
+    cardBodyEl.text( info );
+
+    cardEl.append( cardHeaderEl, cardBodyEl, childEl );
+
+    return cardEl;
+
+}
+
+// generates large cards with 20 columns of weather info
+function generateLargeCard( classes, title, icon, column1, column2 ) {
+
+
+    var cardEl = $( '<div>' ).addClass( classes );
+    var headerEl = $( '<h4>' ).addClass( 'card-header bg-dark text-light text-center' );
+    var rowEl = $( '<div>' ).addClass( 'row justify-content-center' );
+
+    headerEl.append( icon, title );
+    rowEl.append( column1, column2 );
+    cardEl.append( headerEl, rowEl );
+
+    return cardEl;
+
+}
+
+function generateCardColumn ( element1, element2, element3 ) {
+
+    var columnEl = $( '<div>' ).addClass( 'col-sm-5' );
+
+    columnEl.append( element1, element2, element3 );
+
+    return columnEl;
+
+}
+
 // displays current weather on the screen
-function renderCurrentWeather ( cityName, currentWeatherData, timezone, country, state ) {
+function renderWeather ( cityName, weatherData, timezone, country, state ) {
 
     // document fragment for current weather
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
     // city header
-    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light' );
-    var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ currentWeatherData.weather[0].icon }@2x.png`;
-    var largeWeatherIconEl = $( '<img>' ).attr( 'src', largeWeatherIconUrl );
-    var countryFlagEl = $( '<img>' ).attr( 'src', countryFlagApiUrl + country ).attr( 'alt', 'Image of ' + countryCodes[ country ] + ' flag' ).addClass( 'm-3 flag' );
+    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center' );
+
+    // Large weather conditions icon
+    var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherData.weather[0].icon }@2x.png`;
+    var largeWeatherIconEl = $( '<img>' ).attr( { src: largeWeatherIconUrl, alt: weatherData.weather[0].main + ' weather Icon' } );
+
+    // location country flag
+    var countryFlagEl = $( '<img>' ).attr( { src: countryFlagApiUrl + country, alt: 'The flag of ' + countryCodes[ country ] } ).addClass( 'm-3 flag' );
 
     // Add elements to city header
     cityNameEl.append( countryFlagEl, ' ', cityName );
-
     if ( state ) cityNameEl.append( ' - ', state );
-
     cityNameEl.append( ', ', countryCodes[ country ], largeWeatherIconEl );
-    cityNameEl.addClass( 'd-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center' );
 
     // Current conditions banner
     var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center' );
     var currentConditionsBannerEl = $( '<h2>' ).addClass( 'header bg-navy text-light p-3' );
     var updatedEl = $( '<footer>' ).addClass( 'small' );
-    var fetchDateTime = luxon.DateTime.fromSeconds( currentWeatherData.dt, { zone: timezone } );
+    var fetchDateTime = luxon.DateTime.fromSeconds( weatherData.dt, { zone: timezone } );
 
     // Add date of weather fetch to banner
     currentConditionsBannerEl.append( 'Current Conditions - ', fetchDateTime.toLocaleString( luxon.DateTime.DATE_FULL ) );
@@ -238,101 +283,103 @@ function renderCurrentWeather ( cityName, currentWeatherData, timezone, country,
     // current weather conditions
     var conditionsRowEl = $( '<div>' ).addClass( 'row m-3' );
     var conditionsColEl = $( '<div>' ).addClass( 'col-md-6' );
-    var conditionsCardEl = $( '<div>' ).addClass( 'card my-2 h-100' );
 
-    // sunrise / sunset times converted to human readable format
-    var sunrise = luxon.DateTime.fromSeconds( currentWeatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
-    var sunset = luxon.DateTime.fromSeconds( currentWeatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
+    // small weather conditions icon
+    var weatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherData.weather[0].icon }.png`;
+    var weatherIconEl = $( '<img>' ).attr( { src: weatherIconUrl, alt: weatherData.weather[0].main + ' weather Icon' } );
 
-    // card to display weather information temp, humidity, dew point, cloud cover, sunrise, and sunset
-    conditionsCardEl.html( `
-        <h4 class="card-header bg-dark text-light text-center">${ currentWeatherData.weather[0].main } <img src="${ openWeatherImageRootUrl }/${ currentWeatherData.weather[0].icon }.png" alt="${ currentWeatherData.weather[0].main } Icon"></h4>
-        <div class="row justify-content-center">
-            <div class="col-sm-5">
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-thermometer-half"></i> Temperature</h6>
-                    <span class="fw-bold p-1">${ currentWeatherData.temp } ${ units.tempChar }</span>
-                </div>
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-moisture"></i> Humidity</h6>
-                    <span class="fw-bold p-1">${ currentWeatherData.humidity }%</span>
-                </div>
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-droplet"></i> Dew Point</h6>
-                    <span class="fw-bold p-1">${ currentWeatherData.dew_point } ${ units.tempChar }</span>
-                </div>
-            </div>
-            <div class="col-sm-5">
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-cloud-sun"></i> Cloud Cover</h6>
-                    <span class="fw-bold p-1">${ currentWeatherData.clouds }%</span>
-                </div>
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-sunrise"></i> Sunrise</h6>
-                    <span class="fw-bold p-1">${ sunrise }</span>
-                </div>
-                <div class="card text-center my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light"><i class="bi bi-sunset"></i> Sunset</h6>
-                    <span class="fw-bold p-1">${ sunset }</span>
-                </div>
-            </div>
-        </div>
-    ` );
+    // sunrise / sunset times converted to human readable format        
+    var sunrise = luxon.DateTime.fromSeconds( weatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
+    var sunset = luxon.DateTime.fromSeconds( weatherData.sunset, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
+
+    // create large card with the following data: Temperature, Humidity, Dew Point, Cloud Cover, Sunrise, Sunset
+    var conditionsCardEl = generateLargeCard(
+        'card my-2 h-100',                      // Classes to add to card
+        weatherData.weather[0].main,            // Titles ( Weather Conditions )
+        weatherIconEl,                          // Icon ( Weather Conditions Icon )
+        generateCardColumn(
+            generateSmallCard(
+                'Temperature',
+                thermometerIcon,
+                weatherData.temp + ' ' + units.tempChar,
+                ''
+            ),
+            generateSmallCard(
+                'Humidity',
+                moistureIcon,
+                weatherData.humidity + '%',
+                ''
+            ),
+            generateSmallCard(
+                'Dew Point',
+                dropletIcon,
+                weatherData.dew_point + ' ' + units.tempChar,
+                ''
+            )
+        ),
+        generateCardColumn(
+            generateSmallCard(
+                'Cloud Cover',
+                cloudSunIcon,
+                weatherData.clouds + '%',
+                ''
+            ),
+            generateSmallCard(
+                'Sunrise',
+                sunriseIcon,
+                sunrise,
+                ''
+            ),
+            generateSmallCard(
+                'Sunset',
+                sunriseIcon,
+                sunset,
+                ''
+            )
+        )
+    );
 
     // Append card to column and column to row
     conditionsColEl.append( conditionsCardEl );
     conditionsRowEl.append( conditionsColEl );
 
-
     // elements for wind card
     var windColEl =  $( '<div>' ).addClass( 'col-md-6' );
-    var windCardEl = $( '<div>' ).addClass( 'card my-2 text-center h-100 mt-4 mt-md-2' );
     var windGusts;
 
-    if( currentWeatherData.wind_gust ) {
+    // if wind gust data is available
+    if( weatherData.wind_gust ) { windGusts = weatherData.wind_gust + ' ' + units.speed;  } 
+    else { windGusts = 'N/A' }
 
-        windGusts = currentWeatherData.wind_gust + ' ' + units.speed;
-
-    } else {
-
-        windGusts = 'N/A'
-
-    }
-
-    // card to display wind conditions
-    windCardEl.html( `
-        <h5 class="card-header bg-dark text-light">
-            <i class="bi bi-wind"></i> Wind
-        </h5>
-        <div class="row justify-content-center">
-            <div class="col-sm-5 d-flex flex-column">
-                <div class="card my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light">Speed</h6>
-                    <span class="fw-bold p-1">${ currentWeatherData.wind_speed } ${ units.speed }</span> 
-                </div>
-                <div class="card my-2 mx-3 mx-sm-0">
-                    <h6 class="card-header bg-navy text-light">Gusts</h6>
-                    <span class=" fw-bold p-1">${ windGusts }</span> 
-                </div>
-            </div>
-            <div class="col-sm-5">
-                <div class="card my-2 mx-3 mx-sm-0 text-center h-100">
-                    <h6 class="card-header bg-navy text-light">Direction</h6>
-                    <span class="fw-bold">${ degToCardinal( currentWeatherData.wind_deg ) }</span> 
-                    <div class="compass mx-auto">
-                        <div class="ring"></div>
-                        <div class="north direction"></div>
-                        <div class="east direction"></div>
-                        <div class="south direction"></div>
-                        <div class="west direction"></div>
-                        <div class="pointer" style="transform: rotate(${ currentWeatherData.wind_deg }deg);">
-                            <div class="pointer-bottom"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    ` );
+    // generate large card with wind data
+    var windCardEl = generateLargeCard(
+        'card my-2 text-center h-100 mt-4 mt-md-2', // Classes to add to card
+        'Wind',                                     // Title
+        windIcon,                                   // Icon
+        generateCardColumn(
+            generateSmallCard(
+                'Speed',
+                '',
+                weatherData.wind_speed + ' ' + units.speed,
+                ''
+            ),
+            generateSmallCard(
+                'Gusts',
+                '',
+                windGusts,
+                ''
+            )
+        ),
+        generateCardColumn(
+            generateSmallCard(
+                'Direction',
+                '',
+                degToCardinal( weatherData.wind_deg ),
+                'h-100',
+                generateCompass( weatherData.wind_deg )
+            )
+        )
+    );
 
     // Append card to column and column to row
     windColEl.append( windCardEl );
@@ -345,12 +392,12 @@ function renderCurrentWeather ( cityName, currentWeatherData, timezone, country,
     var UVICard = $( '<div>' ).addClass( 'card my-2' );
 
     UVICard.html( `
-    <div class="card-header text-center fw-bold UVtag ${ colorUVI( currentWeatherData.uvi ) }">
-    <i class="bi bi-sun"></i> UV Index: ${ currentWeatherData.uvi } - ${ getUVIlevel( currentWeatherData.uvi ) }
+    <div class="card-header text-center fw-bold UVtag ${ colorUVI( weatherData.uvi ) }">
+    <i class="bi bi-sun"></i> UV Index: ${ weatherData.uvi } - ${ getUVIlevel( weatherData.uvi ) }
     </div>
     ` );
 
-    UVICard.append( getUVImessageCard( currentWeatherData.uvi ) );
+    UVICard.append( getUVImessageCard( weatherData.uvi ) );
 
     // Append card to column and column to row
     UVIcolEl.append( UVICard );
@@ -377,7 +424,7 @@ function render5DayForecast ( weatherForecast ) {
 // displays weather on the screen
 function displayWeather ( cityName, weatherData, country, state ) {
 
-    currentWeatherDisplayEl.html( renderCurrentWeather( cityName, weatherData.current, weatherData.timezone, country, state ) );
+    currentWeatherDisplayEl.html( renderWeather( cityName, weatherData.current, weatherData.timezone, country, state ) );
     render5DayForecast( weatherData.daily );
 
 }
@@ -511,7 +558,12 @@ function renderHistoryButton ( buttonTitle ) {
     return buttonEl;
 }
 
-// city search form
+initializeSettings();
+
+// change unit selection
+toggleUnitsEl.change( toggleUnits );
+
+// city search form submission
 citySearchFormEl.submit( function ( event ) {
 
     event.preventDefault();
@@ -523,10 +575,6 @@ citySearchFormEl.submit( function ( event ) {
     }
     
 } );
-
-initializeSettings();
-
-toggleUnitsEl.change( toggleUnits );
 
 // search for city from search history when button is clicked
 searchHistoryEl.on( 'click', 'button', function ( event ) {
