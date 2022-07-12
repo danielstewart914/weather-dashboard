@@ -17,11 +17,13 @@ var searchErrorEl = $( '#searchError' );
 // search history
 var searchHistoryEl = $( '#searchHistory' );
 
-var fullWeatherEl = $( '#fullWeather' );
+// For dynamic title
+var pageTitleEl = $( '#pageTitle' );
 
 // display elements
 var currentWeatherDisplayEl = $( '#currentWeatherDisplay' );
 var fiveDayForecastDisplayEl = $( '#fiveDayForecast' );
+var fullWeatherEl = $( '#fullWeather' );
 
 var locationHistory = [];
 var forecastFragments = [];
@@ -302,6 +304,11 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
     // small weather conditions icon
     var weatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherData.weather[0].icon }.png`;
     var weatherIconEl = $( '<img>' ).attr( { src: weatherIconUrl, alt: weatherData.weather[0].main + ' weather Icon' } );
+
+    // change page title
+    pageTitleEl.text( 'Weather Conditions - ' + cityName );
+    if ( state ) pageTitleEl.append( ' - ', state );
+    pageTitleEl.append( ', ', countryCodes[ country ], weatherIconEl );
 
     // sunrise / sunset times converted to human readable format        
     var sunrise = luxon.DateTime.fromSeconds( weatherData.sunrise, { zone: timezone } ).toLocaleString( luxon.DateTime.TIME_SIMPLE );
