@@ -293,7 +293,7 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
     currentConditionsBannerEl.append( preface, 'Conditions for - ', displayDate.toLocaleString( luxon.DateTime.DATE_HUGE ), '<br>', updatedEl );
 
     // Add time of weather fetch to banner footer
-    updatedEl.append( 'Data Current as of ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.DATE_HUGE ), ' ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
+    updatedEl.append( 'Data Current as of ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.DATE_HUGE ), ' at ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
 
     // append elements to banner
     bannerRowEl.append( currentConditionsBannerEl );
@@ -696,7 +696,7 @@ fiveDayForecastDisplayEl.on( 'click', 'button', function ( event ) {
     fullWeatherEl.append( footerEl, XCloseButtonEl );
 
     // display modal
-    $('#weatherModal').modal( 'toggle' );
+    $('#weatherModal').modal( 'show' );
 
 } );
 
