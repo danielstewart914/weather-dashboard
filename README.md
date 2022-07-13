@@ -24,7 +24,7 @@
 
 ### Preview image
 
-![Application Preview Image](./assets/images/weatherDashboardPreview.png)
+![Application Preview Image](./assets/images/weatherDashboardAppPreview.png)
 
 ## License
 
