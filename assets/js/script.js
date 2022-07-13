@@ -261,7 +261,7 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
     // city header
-    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center p-2 pt-3 pt-sm-2' );
+    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center p-2' );
 
     // Large weather conditions icon
     var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherData.weather[0].icon }@2x.png`;
@@ -694,6 +694,7 @@ fiveDayForecastDisplayEl.on( 'click', 'button', function ( event ) {
     fullWeatherEl.html( frag );
     footerEl.append( closeButtonEl );
     fullWeatherEl.append( footerEl, XCloseButtonEl );
+    fullWeatherEl.children( 'h2' ).addClass( 'pt-5' );
 
     // display modal
     $('#weatherModal').modal( 'show' );
