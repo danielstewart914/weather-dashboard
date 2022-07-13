@@ -49,6 +49,7 @@ const imperial = {
  const sunsetIcon = $( '<i>' ).addClass( 'bi bi-sunset' );
  const cloudSunIcon = $( '<i>' ).addClass( 'bi bi-cloud-sun' );
  const moistureIcon = $( '<i>' ).addClass( 'bi bi-moisture' );
+ const closeIcon = $( '<i>' ).addClass( 'bi bi-x-lg' );
 
 // checks local storage for user preference for metric otherwise sets units to imperial by default
  var units;
@@ -260,7 +261,7 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
     var currentWeatherFrag = $( document.createDocumentFragment() );
 
     // city header
-    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center p-2 pt-3' );
+    var cityNameEl = $( '<h2>' ).addClass( 'card-header text-center bg-dark text-light d-flex justify-content-evenly flex-wrap flex-sm-no-wrap align-items-center p-2 pt-3 pt-sm-2' );
 
     // Large weather conditions icon
     var largeWeatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherData.weather[0].icon }@2x.png`;
@@ -275,9 +276,9 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
     cityNameEl.append( ', ', countryCodes[ country ], largeWeatherIconEl );
 
     // Current conditions banner
-    var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center' );
+    var bannerRowEl = $( '<div>' ).addClass( 'row m-1 text-center ' );
     var currentConditionsBannerEl = $( '<h2>' ).addClass( 'header bg-navy text-light p-3' );
-    var updatedEl = $( '<footer>' ).addClass( 'small' );
+    var updatedEl = $( '<footer>' ).addClass( 'small float-end fw-normal mt-1' );
 
     // dates and times
     var displayDate = luxon.DateTime.fromSeconds( weatherData.dt, { zone: timezone } );
@@ -289,16 +290,16 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
     else preface = 'Upcoming ';
 
     // Add date of weather fetch to banner
-    currentConditionsBannerEl.append( preface, 'Conditions for - ', displayDate.toLocaleString( luxon.DateTime.DATE_FULL ) );
+    currentConditionsBannerEl.append( preface, 'Conditions for - ', displayDate.toLocaleString( luxon.DateTime.DATE_HUGE ), '<br>', updatedEl );
 
     // Add time of weather fetch to banner footer
-    updatedEl.append( 'As of ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.DATE_FULL ), ' ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
+    updatedEl.append( 'Data Current as of ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.DATE_HUGE ), ' ', fetchDateTimeDisplay.toLocaleString( luxon.DateTime.TIME_SIMPLE ), ' local time' );
 
     // append elements to banner
-    bannerRowEl.append( currentConditionsBannerEl, updatedEl );
+    bannerRowEl.append( currentConditionsBannerEl );
 
     // current weather conditions
-    var primaryRowEl = $( '<div>' ).addClass( 'row m-3' );
+    var primaryRowEl = $( '<div>' ).addClass( 'row m-3 mt-0' );
     var conditionsColEl = $( '<div>' ).addClass( 'col-md-6' );
 
     // small weather conditions icon
@@ -414,7 +415,7 @@ function renderWeather ( cityName, weatherData, timezone, fetchDateTime, country
 
 
     // elements for UVI
-    var UVIrowEl = $( '<div>' ).addClass( 'row m-3 justify-content-center' );
+    var UVIrowEl = $( '<div>' ).addClass( 'row mx-3 justify-content-center' );
     var UVIcolEl = $( '<div>' ).addClass( 'col-12' );
     var UVICard = $( '<div>' ).addClass( 'card my-2' );
 
@@ -441,13 +442,13 @@ function generate5DayCard ( weatherForecast, timezone, index ) {
 
     var cardEl = $( '<div>' ).addClass( 'card text-center my-2 mx-3 p-0' );
     var cardHeaderEl = $( '<h5>' ).addClass( 'card-header bg-dark text-light' );
-    var date = luxon.DateTime.fromSeconds( weatherForecast.dt, { zone: timezone } ).toLocaleString( luxon.DateTime.DATE_FULL );
+    var date = luxon.DateTime.fromSeconds( weatherForecast.dt, { zone: timezone } ).toLocaleString( luxon.DateTime.DATE_HUGE );
     var moreButtonEl = $( '<button>' ).addClass( 'btn btn-success text-light m-3' ).text( 'See More' ).data( 'index', index );
 
     var weatherIconUrl = `${ openWeatherImageRootUrl }/${ weatherForecast.weather[0].icon }.png`;
     var weatherIconEl = $( '<img>' ).attr( { src: weatherIconUrl, alt: weatherForecast.weather[0].main + ' weather Icon' } );
 
-    cardHeaderEl.append( date, weatherIconEl, weatherForecast.weather[0].main );
+    cardHeaderEl.append( date, '<br>', weatherIconEl, weatherForecast.weather[0].main );
     cardEl.append( 
         cardHeaderEl,
         generateSmallCard(
@@ -686,12 +687,13 @@ fiveDayForecastDisplayEl.on( 'click', 'button', function ( event ) {
     // clone document fragment at index of button clicked and store in variable
     var frag = forecastFragments[$( event.target ).data( 'index' )].clone();
     var footerEl = $( '<div>' ).addClass( 'row justify-content-center' );
+    var XCloseButtonEl = $( '<button>' ).addClass( 'btn btn-danger position-absolute top-0 end-0 m-2' ).html( closeIcon );
     var closeButtonEl = $( '<button>' ).addClass( 'btn btn-danger text-light m-3 col-10 col-md-6 col-lg-4' ).text( 'close' );
 
     // render to modal
     fullWeatherEl.html( frag );
     footerEl.append( closeButtonEl );
-    fullWeatherEl.append( footerEl );
+    fullWeatherEl.append( footerEl, XCloseButtonEl );
 
     // display modal
     $('#weatherModal').modal( 'toggle' );
