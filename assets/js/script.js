@@ -51,7 +51,6 @@ const imperial = {
  const moistureIcon = $( '<i>' ).addClass( 'bi bi-moisture' );
  const closeIcon = $( '<i>' ).addClass( 'bi bi-x-lg' );
 
-// checks local storage for user preference for metric otherwise sets units to imperial by default
  var units;
 
 
@@ -682,6 +681,8 @@ searchHistoryEl.on( 'click', 'button', function ( event ) {
 
 } );
 
+// set contents of modal with full weather for corresponding 'show more' button is clicked on any forecast card
+// and show modal
 fiveDayForecastDisplayEl.on( 'click', 'button', function ( event ) {
 
     // clone document fragment at index of button clicked and store in variable
@@ -696,13 +697,15 @@ fiveDayForecastDisplayEl.on( 'click', 'button', function ( event ) {
     fullWeatherEl.append( footerEl, XCloseButtonEl );
     fullWeatherEl.children( 'h2' ).addClass( 'pt-5' );
 
-    // display modal
+    // show modal
     $('#weatherModal').modal( 'show' );
 
 } );
 
+// close modal when one of the close buttons are clicked
 fullWeatherEl.on( 'click', 'button', function () {
 
+    // hide modal
     $('#weatherModal').modal( 'hide' );
 
 } );
