@@ -226,7 +226,7 @@ const renderWeather = ( cityName, weatherData, timezone, fetchDateTime, country,
 	const largeWeatherIconEl = $( '<img>' ).attr( { src: largeWeatherIconUrl, alt: weatherData.weather[0].main + ' weather Icon' } );
 
 	// location country flag
-	const countryFlagEl = $( '<img>' ).attr( { src: getFlagImageUrl(country), alt: 'The flag of ' + countryCodes[ country ], crossorigin: 'anonymous' } ).addClass( 'm-3 flag' );
+	const countryFlagEl = $( '<img>' ).attr( { src: getFlagImageUrl(country), alt: 'The flag of ' + countryCodes[ country ] } ).addClass( 'm-3 flag' );
 
 	// Add elements to city header
 	cityNameEl.append( countryFlagEl, ' ', cityName );
