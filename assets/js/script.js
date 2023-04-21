@@ -3,9 +3,6 @@ const openWeatherApiRootUrl = 'https://api.openweathermap.org';
 const openWeatherImageRootUrl = 'https://openweathermap.org/img/wn';
 const openWeatherApiKey = '1008cf8d4beec486e3a918845ef87da6';
 
-// country flag api
-const countryFlagApiUrl = 'https://countryflagsapi.com/svg/';
-
 // toggle for switching between imperial and metric
 const toggleUnitsEl = $( '#toggleUnits' );
 
@@ -81,6 +78,10 @@ const toggleUnits = () => {
 	// if there is weather currently displayed on screen fetch and refresh data with new unit selection
 	if( currentWeatherDisplayEl.children().length )
 		fetchLatLong( locationHistory[ locationHistory.length - 1 ] );
+}
+
+const getFlagImageUrl = (country) => {
+	return `https://flagsapi.com/${country}/flat/64.png`;
 }
 
 // returns class to color code UV index
@@ -225,7 +226,7 @@ const renderWeather = ( cityName, weatherData, timezone, fetchDateTime, country,
 	const largeWeatherIconEl = $( '<img>' ).attr( { src: largeWeatherIconUrl, alt: weatherData.weather[0].main + ' weather Icon' } );
 
 	// location country flag
-	const countryFlagEl = $( '<img>' ).attr( { src: countryFlagApiUrl + country, alt: 'The flag of ' + countryCodes[ country ], crossorigin: 'anonymous' } ).addClass( 'm-3 flag' );
+	const countryFlagEl = $( '<img>' ).attr( { src: getFlagImageUrl(country), alt: 'The flag of ' + countryCodes[ country ], crossorigin: 'anonymous' } ).addClass( 'm-3 flag' );
 
 	// Add elements to city header
 	cityNameEl.append( countryFlagEl, ' ', cityName );
